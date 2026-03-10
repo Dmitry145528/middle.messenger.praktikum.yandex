@@ -1,5 +1,5 @@
 import * as Handlebars from 'handlebars';
-import { loginPage } from './pages';
+import { loginPage, registerPage } from './pages';
 
 export default class App {
   appElement: HTMLElement | null;
@@ -14,9 +14,19 @@ export default class App {
       return;
     }
 
+    const path = window.location.pathname;
+
+    let sourceTemplate = loginPage;
+
+    if (path === '/register') {
+      sourceTemplate = registerPage;
+    } else if (path !== '/') {
+      sourceTemplate = "<h1>404 - Страница не найдена</h1><a href='/'>На главную</a>";
+    }
+
     let template;
     try {
-      template = Handlebars.compile(loginPage || "<h1>Страница в разработке</h1>");
+      template = Handlebars.compile(sourceTemplate);
     } catch (e) {
       console.error("Ошибка компиляции Handlebars:", e);
       return;

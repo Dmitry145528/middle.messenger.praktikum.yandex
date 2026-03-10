@@ -1,4 +1,4 @@
-.login-card {
+.register-card {
   background-color: var(--color-bg-card);
   width: 100%;
   max-width: 450px;
@@ -11,31 +11,32 @@
   align-items: center;
 }
 
-.login-form {
+.register-form {
   width: 100%;
 }
 
-.login-card__title {
+.register-card__title {
   font-size: 20px;
   font-weight: 500;
   margin-bottom: 40px;
   color: var(--color-text-main);
+  text-align: center;
 }
 
-.login-form__inputs {
+.register-form__inputs {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-bottom: 60px;
+  margin-bottom: 40px;
 }
 
-.login-form__actions {
+.register-form__actions {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 14px;
 }
 
-.login-form__link {
+.register-form__link {
   font-size: 11px;
 }
