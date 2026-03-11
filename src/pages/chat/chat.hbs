@@ -1,0 +1,118 @@
+<main class="chat-page">
+	<!-- Левая колонка: Сайдбар со списком чатов -->
+	<aside class="chat-sidebar">
+		<!-- Шапка сайдбара (Профиль и поиск) -->
+		<header class="chat-sidebar__header">
+			<div class="chat-sidebar__profile">
+				<a href="/profile" class="chat-sidebar__profile-link">
+					Профиль
+					<img class="chat-sidebar__profile-icon" src="/Arrov.svg" alt="arrow">
+				</a>
+			</div>
+
+			<div class="chat-search">
+				<input class="chat-search__input" type="text" placeholder="Поиск">
+			</div>
+		</header>
+
+		<!-- Список чатов -->
+		<ul class="chat-list">
+			{{#each chatList}}
+			<li class="chat-item {{#if isActive}}chat-item--active{{/if}}">
+				<div class="chat-item__avatar"></div>
+				<div class="chat-item__content">
+					<div class="chat-item__top">
+						<span class="chat-item__name">{{name}}</span>
+						<time class="chat-item__time">{{time}}</time>
+					</div>
+					<div class="chat-item__bottom">
+						<span class="chat-item__message">
+							{{#if isMe}}<strong>Вы:</strong> {{/if}}{{message}}
+						</span>
+						{{#if unreadCount}}
+						<div class="chat-item__badge">{{unreadCount}}</div>
+						{{/if}}
+					</div>
+				</div>
+			</li>
+			{{/each}}
+		</ul>
+	</aside>
+
+	<!-- Правая колонка: Окно переписки -->
+	<section class="chat-main">
+		<!-- Шапка чата -->
+		<header class="chat-header">
+			<div class="chat-header__user">
+				<div class="chat-header__avatar"></div>
+				<span class="chat-header__name">Вадим</span>
+			</div>
+
+			<div class="chat-options">
+				<button class="chat-header__options-btn js-dropdown-toggle" type="button">
+					<img src="/3Points.svg" alt="options">
+				</button>
+
+				<div class="dropdown dropdown--header js-dropdown-menu">
+					<ul class="dropdown__list">
+						<li class="dropdown__item">
+							<img class="dropdown__icon" src="/addButton.png" alt="add">
+							Добавить пользователя
+						</li>
+						<li class="dropdown__item">
+							<img class="dropdown__icon" src="/deleteButton.png" alt="delete">
+							Удалить пользователя
+						</li>
+					</ul>
+				</div>
+			</div>
+		</header>
+
+		<!-- История сообщений -->
+		<div class="chat-messages">
+			<div class="chat-messages__date">19 июня</div>
+
+			{{#each messageList}}
+			<div class="message message--{{type}}">
+				<div class="message__content">
+					{{{text}}}
+					<time class="message__time {{#if isRead}}message__time--read{{/if}}">{{time}}</time>
+				</div>
+			</div>
+			{{/each}}
+		</div>
+
+		<!-- Футер чата (ввод сообщения) -->
+		<footer class="chat-footer">
+			<div class="chat-attach">
+				<button class="chat-footer__attach-btn js-dropdown-toggle" type="button">
+					<img src="/PaperClip.png" alt="attach" width="32">
+				</button>
+
+				<div class="dropdown dropdown--footer js-dropdown-menu">
+					<ul class="dropdown__list">
+						<li class="dropdown__item">
+							<img class="dropdown__icon" src="/PhotoOrVideo.svg" alt="media">
+							Фото или Видео
+						</li>
+						<li class="dropdown__item">
+							<img class="dropdown__icon" src="/File.svg" alt="file">
+							Файл
+						</li>
+						<li class="dropdown__item">
+							<img class="dropdown__icon" src="/location.svg" alt="location">
+							Локация
+						</li>
+					</ul>
+				</div>
+			</div>
+
+			<form class="chat-message-form">
+				<input class="chat-message-form__input" type="text" name="message" placeholder="Сообщение" required />
+				<button class="chat-message-form__send" type="submit">
+					<img src="/ArrovButton.svg" alt="send">
+				</button>
+			</form>
+		</footer>
+	</section>
+</main>

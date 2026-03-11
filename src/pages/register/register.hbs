@@ -1,54 +1,54 @@
 <main class="register-card">
   <h1 class="register-card__title">Регистрация</h1>
 
-    <form class="register-form">
-      <div class="register-form__inputs">
-        {{> Input
-        label="Имя"
-        name="first_name"
-        type="text"
-        placeholder="Введите имя"
-        }}
+  <form class="register-form">
+    <div class="register-form__inputs">
+      {{> Input
+      label="Имя"
+      name="first_name"
+      type="text"
+      placeholder="Введите имя"
+      }}
 
-        {{> Input
-        label="Фамилия"
-        name="second_name"
-        type="text"
-        placeholder="Введите фамилию"
-        }}
+      {{> Input
+      label="Фамилия"
+      name="second_name"
+      type="text"
+      placeholder="Введите фамилию"
+      }}
 
-        {{> Input
-        label="Логин"
-        name="login"
-        type="text"
-        placeholder="Придумайте логин"
-        }}
+      {{> Input
+      label="Логин"
+      name="login"
+      type="text"
+      placeholder="Придумайте логин"
+      }}
 
-        {{> Input
-        label="Почта"
-        name="email"
-        type="email"
-        placeholder="Введите email"
-        }}
+      {{> Input
+      label="Почта"
+      name="email"
+      type="email"
+      placeholder="Введите email"
+      }}
 
-        {{> Input
-        label="Пароль"
-        name="password"
-        type="password"
-        placeholder="Придумайте пароль"
-        }}
+      {{> Input
+      label="Пароль"
+      name="password"
+      type="password"
+      placeholder="Придумайте пароль"
+      }}
 
-        {{> Input
-        label="Телефон"
-        name="phone"
-        type="tel"
-        placeholder="+7 (999) 000-00-00"
-        }}
-      </div>
+      {{> Input
+      label="Телефон"
+      name="phone"
+      type="tel"
+      placeholder="+7 (999) 000-00-00"
+      }}
+    </div>
 
-      <div class="register-form__actions">
-        {{> Button text="Зарегистрироваться" type="primary" htmlType="submit" }}
-        {{> Link text="Войти" href="/" className="register-form__link" }}
-      </div>
-    </form>
+    <div class="register-form__actions">
+      {{> Button text="Зарегистрироваться" type="primary" htmlType="submit" }}
+      {{> Link text="Войти" href="/" className="register-form__link" }}
+    </div>
+  </form>
 </main>
