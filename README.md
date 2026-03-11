@@ -41,4 +41,4 @@
 
 ## Ссылки
 
-- **Netlify Deployment:** [Product Link](https://exquisite-daifuku-9f0d3c.netlify.app/) | [Current Preview](https://69b16902ee07d826cd095738--exquisite-daifuku-9f0d3c.netlify.app/)
+- **Публикация на Netlify:** [Ссылка](https://exquisite-daifuku-9f0d3c.netlify.app/)
