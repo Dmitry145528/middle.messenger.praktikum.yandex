@@ -26,6 +26,10 @@
 
 2. Запуск в режиме разработки:
    ```bash
+   npm run start
+   ```
+   или
+   ```bash
    npm run dev
    ```
 
