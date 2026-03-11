@@ -1,0 +1,52 @@
+<div class="profile-layout">
+	<aside class="profile-layout__sidebar">
+		<a href="/chat" class="profile-layout__back-btn">
+			<img src="/ArrovButton.svg" alt="back">
+		</a>
+	</aside>
+
+	<main class="profile-page">
+		{{> Avatar src=avatar canEdit=isEdit }}
+
+		{{#unless isPasswordEdit}}
+		<h1 class="profile-page__name">{{first_name}}</h1>
+		{{/unless}}
+
+		<form class="profile-page__form">
+			<ul class="profile-page__fields">
+				{{#if isPasswordEdit}}
+				{{> ProfileField label="Старый пароль" name="oldPassword" type="password" isEdit=true value="********"
+				}}
+				{{> ProfileField label="Новый пароль" name="newPassword" type="password" isEdit=true value="********" }}
+				{{> ProfileField label="Повторите новый пароль" name="repeatPassword" type="password" isEdit=true
+				value="********" }}
+				{{else}}
+				{{> ProfileField label="Почта" name="email" value=email isEdit=isEdit }}
+				{{> ProfileField label="Логин" name="login" value=login isEdit=isEdit }}
+				{{> ProfileField label="Имя" name="first_name" value=first_name isEdit=isEdit }}
+				{{> ProfileField label="Фамилия" name="second_name" value=second_name isEdit=isEdit }}
+				{{> ProfileField label="Имя в чате" name="display_name" value=display_name isEdit=isEdit }}
+				{{> ProfileField label="Телефон" name="phone" value=phone isEdit=isEdit }}
+				{{/if}}
+			</ul>
+
+			{{#if isEdit}}
+			{{> Button text="Сохранить" type="primary" htmlType="submit" }}
+			{{else if isPasswordEdit}}
+			{{> Button text="Сохранить" type="primary" htmlType="submit" }}
+			{{else}}
+			<ul class="profile-page__actions">
+				<li class="profile-page__action">
+					{{> Link text="Изменить данные" href="/profile-edit" }}
+				</li>
+				<li class="profile-page__action">
+					{{> Link text="Изменить пароль" href="/password-edit" }}
+				</li>
+				<li class="profile-page__action">
+					{{> Link text="Выйти" href="/" className="link--error" }}
+				</li>
+			</ul>
+			{{/if}}
+		</form>
+	</main>
+</div>

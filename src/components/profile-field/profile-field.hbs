@@ -1,0 +1,8 @@
+<li class="profile-field">
+	<p class="profile-field__label">{{label}}</p>
+	{{#if isEdit}}
+	<input class="profile-field__input" type="{{type}}" name="{{name}}" value="{{value}}" placeholder="{{placeholder}}" />
+	{{else}}
+	<p class="profile-field__value">{{value}}</p>
+	{{/if}}
+</li>

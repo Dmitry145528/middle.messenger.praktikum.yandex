@@ -1,0 +1,34 @@
+.profile-field {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 10px 0;
+	border-bottom: 1px solid var(--color-border);
+	font-size: 13px;
+}
+
+.profile-field:last-child {
+	border-bottom: none;
+}
+
+.profile-field__label {
+	font-weight: 500;
+	color: var(--color-text-main);
+}
+
+.profile-field__value {
+	color: var(--color-text-muted);
+}
+
+.profile-field__input {
+	border: none;
+	text-align: right;
+	color: var(--color-text-muted);
+	outline: none;
+	font-size: 13px;
+	width: 60%;
+}
+
+.profile-field__input:focus {
+	color: var(--color-text-main);
+}

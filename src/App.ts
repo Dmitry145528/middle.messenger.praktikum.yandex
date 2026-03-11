@@ -1,6 +1,17 @@
 import * as Handlebars from 'handlebars';
-import { loginPage, registerPage, chatPage } from './pages';
-import { chatList, messageList } from './pages/chat';
+import {
+  loginPage,
+  registerPage,
+  chatPage,
+  chatList,
+  messageList,
+  profilePage,
+  profileData,
+  profileEditData,
+  passwordEditData,
+  error404Page,
+  error500Page
+} from './pages';
 
 export default class App {
   appElement: HTMLElement | null;
@@ -17,7 +28,8 @@ export default class App {
 
     const path = window.location.pathname;
 
-    let sourceTemplate = loginPage;
+    let sourceTemplate = '';
+    let context: any = {};
 
     switch (path) {
       case '/':
@@ -28,17 +40,25 @@ export default class App {
         break;
       case '/chat':
         sourceTemplate = chatPage;
+        context = { chatList, messageList };
+        break;
+      case '/profile':
+        sourceTemplate = profilePage;
+        context = profileData;
+        break;
+      case '/profile-edit':
+        sourceTemplate = profilePage;
+        context = profileEditData;
+        break;
+      case '/password-edit':
+        sourceTemplate = profilePage;
+        context = passwordEditData;
+        break;
+      case '/500':
+        sourceTemplate = error500Page;
         break;
       default:
-        sourceTemplate = `
-          <div class="login-card" style="text-align: center;">
-            <h1 class="login-card__title" style="margin-bottom: 20px;">404</h1>
-            <p style="margin-bottom: 30px; color: var(--color-text-muted); font-size: 14px;">Страница не найдена</p>
-            <form action="/" method="GET" style="width: 100%;">
-              {{> Button text="На главную" type="primary" htmlType="submit" }}
-            </form>
-          </div>
-        `;
+        sourceTemplate = error404Page;
         break;
     }
 
@@ -50,10 +70,7 @@ export default class App {
       return;
     }
 
-    this.appElement.innerHTML = template({
-      chatList,
-      messageList
-    });
+    this.appElement.innerHTML = template(context);
 
     const authForm = this.appElement.querySelector('.login-form, .register-form');
     if (authForm) {
@@ -84,6 +101,20 @@ export default class App {
         this.appElement?.querySelectorAll('.js-dropdown-menu').forEach(menu => {
           menu.classList.remove('is-active');
         });
+      });
+    }
+
+    const backBtn = this.appElement.querySelector('#backToChat');
+    if (backBtn) {
+      backBtn.addEventListener('click', () => {
+        window.location.href = '/chat';
+      });
+    }
+
+    const backToMainBtn = this.appElement.querySelector('#backToMain');
+    if (backToMainBtn) {
+      backToMainBtn.addEventListener('click', () => {
+        window.location.href = '/';
       });
     }
   }

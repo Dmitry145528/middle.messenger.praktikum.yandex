@@ -1,6 +1,10 @@
 @import './components/button/button.css';
 @import './components/input/input.css';
 @import './components/link/link.css';
+@import './components/avatar/avatar.css';
+@import './components/profile-field/profile-field.css';
+@import './pages/profile/profile.css';
+@import './pages/error.css';
 
 * {
 	margin: 0;

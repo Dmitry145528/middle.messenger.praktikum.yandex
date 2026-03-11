@@ -1,18 +1,12 @@
 <div class="input-group">
-    {{#if label}}
-        <label class="input-group__label" for="input-{{name}}">{{label}}</label>
-    {{/if}}
+	{{#if label}}
+	<label class="input-group__label" for="input-{{name}}">{{label}}</label>
+	{{/if}}
 
-    <input 
-        id="input-{{name}}"
-        class="input {{#if error}}input--error{{/if}}" 
-        type="{{#if type}}{{type}}{{else}}text{{/if}}" 
-        name="{{name}}" 
-        placeholder="{{placeholder}}" 
-    />
-    
-    {{#if error}}
-        <span class="input-group__error-text">{{error}}</span>
-    {{/if}}
+	<input id="input-{{name}}" class="input {{#if error}}input--error{{/if}}"
+		type="{{#if type}}{{type}}{{else}}text{{/if}}" name="{{name}}" placeholder="{{placeholder}}" />
+
+	{{#if error}}
+	<span class="input-group__error-text">{{error}}</span>
+	{{/if}}
 </div>
-
