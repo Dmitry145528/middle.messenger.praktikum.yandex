@@ -1,7 +1,20 @@
 import profilePage from './profile.hbs?raw';
 import './profile.css';
 
-const profileData = {
+interface ProfileData {
+	avatar: string;
+	first_name: string;
+	second_name: string;
+	display_name: string;
+	login: string;
+	email: string;
+	phone: string;
+}
+
+type ProfileEditData = ProfileData & { isEdit: true };
+type PasswordEditData = ProfileData & { isPasswordEdit: true };
+
+const profileData: ProfileData = {
 	avatar: '',
 	first_name: 'Иван',
 	second_name: 'Иванов',
@@ -11,14 +24,15 @@ const profileData = {
 	phone: '+7 (909) 967 30 30'
 };
 
-const profileEditData = {
+const profileEditData: ProfileEditData = {
 	...profileData,
 	isEdit: true
 };
 
-const passwordEditData = {
+const passwordEditData: PasswordEditData = {
 	...profileData,
 	isPasswordEdit: true
 };
 
 export { profilePage, profileData, profileEditData, passwordEditData };
+export type { ProfileData, ProfileEditData, PasswordEditData };

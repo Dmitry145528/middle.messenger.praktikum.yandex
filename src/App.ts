@@ -26,10 +26,20 @@ export default class App {
       return;
     }
 
-    const path = window.location.pathname;
+    const root = this.appElement;
+    const path: string = window.location.pathname;
 
-    let sourceTemplate = '';
-    let context: any = {};
+    type EmptyContext = Record<string, never>;
+    type ChatContext = { chatList: typeof chatList; messageList: typeof messageList };
+    type AppContext =
+      | EmptyContext
+      | ChatContext
+      | typeof profileData
+      | typeof profileEditData
+      | typeof passwordEditData;
+
+    let sourceTemplate: string = '';
+    let context: AppContext = {} as EmptyContext;
 
     switch (path) {
       case '/':
@@ -62,34 +72,32 @@ export default class App {
         break;
     }
 
-    let template;
     try {
-      template = Handlebars.compile(sourceTemplate);
+      const template = Handlebars.compile(sourceTemplate) as unknown as (ctx: AppContext) => string;
+      root.innerHTML = template(context);
     } catch (e) {
-      console.error("Ошибка компиляции Handlebars:", e);
+      console.error('Ошибка рендеринга Handlebars:', e);
       return;
     }
 
-    this.appElement.innerHTML = template(context);
-
-    const authForm = this.appElement.querySelector('.login-form, .register-form');
+    const authForm = root.querySelector<HTMLFormElement>('.login-form, .register-form');
     if (authForm) {
-      authForm.addEventListener('submit', (e) => {
+      authForm.addEventListener('submit', (e: Event) => {
         e.preventDefault();
         window.location.href = '/chat';
       });
     }
 
     if (path === '/chat') {
-      const toggleButtons = this.appElement.querySelectorAll('.js-dropdown-toggle');
+      const toggleButtons = root.querySelectorAll<HTMLButtonElement>('.js-dropdown-toggle');
 
       toggleButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
+        button.addEventListener('click', (e: MouseEvent) => {
           e.stopPropagation();
-          const parent = button.closest('.chat-options, .chat-attach');
-          const menu = parent?.querySelector('.js-dropdown-menu');
+          const parent = button.closest<HTMLElement>('.chat-options, .chat-attach');
+          const menu = parent?.querySelector<HTMLElement>('.js-dropdown-menu');
 
-          this.appElement?.querySelectorAll('.js-dropdown-menu').forEach(m => {
+          root.querySelectorAll<HTMLElement>('.js-dropdown-menu').forEach(m => {
             if (m !== menu) m.classList.remove('is-active');
           });
 
@@ -98,20 +106,20 @@ export default class App {
       });
 
       document.addEventListener('click', () => {
-        this.appElement?.querySelectorAll('.js-dropdown-menu').forEach(menu => {
+        root.querySelectorAll<HTMLElement>('.js-dropdown-menu').forEach(menu => {
           menu.classList.remove('is-active');
         });
       });
     }
 
-    const backBtn = this.appElement.querySelector('#backToChat');
+    const backBtn = root.querySelector<HTMLAnchorElement>('#backToChat');
     if (backBtn) {
       backBtn.addEventListener('click', () => {
         window.location.href = '/chat';
       });
     }
 
-    const backToMainBtn = this.appElement.querySelector('#backToMain');
+    const backToMainBtn = root.querySelector<HTMLAnchorElement>('#backToMain');
     if (backToMainBtn) {
       backToMainBtn.addEventListener('click', () => {
         window.location.href = '/';
