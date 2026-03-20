@@ -2,21 +2,24 @@ import * as Handlebars from 'handlebars';
 import {
   LoginPage,
   RegisterPage,
+  ProfilePage,
   chatPage,
   chatList,
   messageList,
-  profilePage,
   profileData,
   profileEditData,
   passwordEditData,
   error404Page,
   error500Page
 } from './pages';
-import Block from './core/Block';
+
+type PageComponent = {
+  element: () => HTMLElement | null;
+};
 
 export default class App {
   appElement: HTMLElement | null;
-  private pageComponent: Block | null = null;
+  private pageComponent: PageComponent | null = null;
 
   constructor() {
     this.appElement = document.getElementById('app');
@@ -33,16 +36,11 @@ export default class App {
 
     type EmptyContext = Record<string, never>;
     type ChatContext = { chatList: typeof chatList; messageList: typeof messageList };
-    type AppContext =
-      | EmptyContext
-      | ChatContext
-      | typeof profileData
-      | typeof profileEditData
-      | typeof passwordEditData;
+    type AppContext = EmptyContext | ChatContext;
 
     let sourceTemplate: string = '';
     let context: AppContext = {} as EmptyContext;
-    let pageComponent: Block | null = null;
+    let pageComponent: PageComponent | null = null;
 
     switch (path) {
       case '/':
@@ -56,16 +54,13 @@ export default class App {
         context = { chatList, messageList };
         break;
       case '/profile':
-        sourceTemplate = profilePage;
-        context = profileData;
+        pageComponent = new ProfilePage(profileData);
         break;
       case '/profile-edit':
-        sourceTemplate = profilePage;
-        context = profileEditData;
+        pageComponent = new ProfilePage(profileEditData);
         break;
       case '/password-edit':
-        sourceTemplate = profilePage;
-        context = passwordEditData;
+        pageComponent = new ProfilePage(passwordEditData);
         break;
       case '/500':
         sourceTemplate = error500Page;

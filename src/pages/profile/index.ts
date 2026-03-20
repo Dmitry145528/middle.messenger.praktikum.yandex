@@ -1,5 +1,6 @@
 import profilePage from './profile.hbs?raw';
 import './profile.css';
+import ProfilePage from './ProfilePage';
 
 interface ProfileData {
 	avatar: string;
@@ -34,5 +35,5 @@ const passwordEditData: PasswordEditData = {
 	isPasswordEdit: true
 };
 
-export { profilePage, profileData, profileEditData, passwordEditData };
+export { profilePage, profileData, profileEditData, passwordEditData, ProfilePage };
 export type { ProfileData, ProfileEditData, PasswordEditData };
