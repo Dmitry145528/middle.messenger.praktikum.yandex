@@ -1,7 +1,7 @@
 import * as Handlebars from 'handlebars';
 import {
-  loginPage,
-  registerPage,
+  LoginPage,
+  RegisterPage,
   chatPage,
   chatList,
   messageList,
@@ -12,9 +12,11 @@ import {
   error404Page,
   error500Page
 } from './pages';
+import Block from './core/Block';
 
 export default class App {
   appElement: HTMLElement | null;
+  private pageComponent: Block | null = null;
 
   constructor() {
     this.appElement = document.getElementById('app');
@@ -40,13 +42,14 @@ export default class App {
 
     let sourceTemplate: string = '';
     let context: AppContext = {} as EmptyContext;
+    let pageComponent: Block | null = null;
 
     switch (path) {
       case '/':
-        sourceTemplate = loginPage;
+        pageComponent = new LoginPage();
         break;
       case '/register':
-        sourceTemplate = registerPage;
+        pageComponent = new RegisterPage();
         break;
       case '/chat':
         sourceTemplate = chatPage;
@@ -72,20 +75,23 @@ export default class App {
         break;
     }
 
-    try {
-      const template = Handlebars.compile(sourceTemplate) as unknown as (ctx: AppContext) => string;
-      root.innerHTML = template(context);
-    } catch (e) {
-      console.error('Ошибка рендеринга Handlebars:', e);
-      return;
-    }
-
-    const authForm = root.querySelector<HTMLFormElement>('.login-form, .register-form');
-    if (authForm) {
-      authForm.addEventListener('submit', (e: Event) => {
-        e.preventDefault();
-        window.location.href = '/chat';
-      });
+    if (pageComponent) {
+      this.pageComponent = pageComponent;
+      const element = this.pageComponent.element();
+      if (!element) {
+        console.error('Не удалось отрендерить страницу компонента');
+        return;
+      }
+      root.innerHTML = '';
+      root.appendChild(element);
+    } else {
+      try {
+        const template = Handlebars.compile(sourceTemplate) as unknown as (ctx: AppContext) => string;
+        root.innerHTML = template(context);
+      } catch (e) {
+        console.error('Ошибка рендеринга Handlebars:', e);
+        return;
+      }
     }
 
     if (path === '/chat') {
