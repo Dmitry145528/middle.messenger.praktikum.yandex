@@ -1,5 +1,6 @@
 import chatPage from './chat.hbs?raw';
 import './chat.css';
+import ChatPage from './ChatPage';
 
 type ChatMessageType = 'incoming' | 'outgoing';
 
@@ -40,5 +41,5 @@ const messageList: ChatMessage[] = [
 	}
 ];
 
-export { chatPage, chatList, messageList };
+export { chatPage, chatList, messageList, ChatPage };
 export type { ChatMessageType, ChatListItem, ChatMessage };

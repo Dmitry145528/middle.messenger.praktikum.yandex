@@ -3,7 +3,7 @@ import {
   LoginPage,
   RegisterPage,
   ProfilePage,
-  chatPage,
+  ChatPage,
   chatList,
   messageList,
   profileData,
@@ -35,11 +35,10 @@ export default class App {
     const path: string = window.location.pathname;
 
     type EmptyContext = Record<string, never>;
-    type ChatContext = { chatList: typeof chatList; messageList: typeof messageList };
-    type AppContext = EmptyContext | ChatContext;
+    type AppContext = EmptyContext;
 
     let sourceTemplate: string = '';
-    let context: AppContext = {} as EmptyContext;
+    const context: AppContext = {} as EmptyContext;
     let pageComponent: PageComponent | null = null;
 
     switch (path) {
@@ -50,8 +49,7 @@ export default class App {
         pageComponent = new RegisterPage();
         break;
       case '/chat':
-        sourceTemplate = chatPage;
-        context = { chatList, messageList };
+        pageComponent = new ChatPage({ chatList, messageList });
         break;
       case '/profile':
         pageComponent = new ProfilePage(profileData);
@@ -87,30 +85,6 @@ export default class App {
         console.error('Ошибка рендеринга Handlebars:', e);
         return;
       }
-    }
-
-    if (path === '/chat') {
-      const toggleButtons = root.querySelectorAll<HTMLButtonElement>('.js-dropdown-toggle');
-
-      toggleButtons.forEach(button => {
-        button.addEventListener('click', (e: MouseEvent) => {
-          e.stopPropagation();
-          const parent = button.closest<HTMLElement>('.chat-options, .chat-attach');
-          const menu = parent?.querySelector<HTMLElement>('.js-dropdown-menu');
-
-          root.querySelectorAll<HTMLElement>('.js-dropdown-menu').forEach(m => {
-            if (m !== menu) m.classList.remove('is-active');
-          });
-
-          menu?.classList.toggle('is-active');
-        });
-      });
-
-      document.addEventListener('click', () => {
-        root.querySelectorAll<HTMLElement>('.js-dropdown-menu').forEach(menu => {
-          menu.classList.remove('is-active');
-        });
-      });
     }
 
     const backBtn = root.querySelector<HTMLAnchorElement>('#backToChat');
