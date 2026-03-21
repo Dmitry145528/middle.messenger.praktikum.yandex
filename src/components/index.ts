@@ -5,10 +5,9 @@ import Link from './link';
 import Avatar from './avatar/avatar.hbs?raw';
 import ProfileField from './profile-field/profile-field.hbs?raw';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Handlebars hash is dynamic
-registerComponent(Button as any);
-registerComponent(Input as any);
-registerComponent(Link as any);
+registerComponent(Button);
+registerComponent(Input);
+registerComponent(Link);
 
 export const Partials = {
   Avatar,

@@ -39,7 +39,9 @@ export default class ProfilePage extends Block<ProfilePageProps> {
   protected events = {
     submit: (event: Event) => {
       event.preventDefault();
-      const form = (event.target as HTMLFormElement);
+      const target = event.target;
+      if (!(target instanceof HTMLFormElement)) return;
+      const form = target;
 
       const isEdit = 'isEdit' in this.props && this.props.isEdit;
       const isPasswordEdit = 'isPasswordEdit' in this.props && this.props.isPasswordEdit;

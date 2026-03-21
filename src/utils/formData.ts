@@ -2,7 +2,12 @@ export function collectFormData(form: HTMLFormElement): Record<string, string | 
   const result: Record<string, string | string[] | FileList> = {};
 
   for (const element of form.elements) {
-    const name = (element as HTMLInputElement).name;
+    if (
+      !element ||
+      !(element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement)
+    )
+      continue;
+    const name = element.name;
     if (!name) continue;
 
     if (element instanceof HTMLInputElement) {

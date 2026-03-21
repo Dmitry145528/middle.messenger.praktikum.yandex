@@ -2,28 +2,32 @@ import Handlebars from 'handlebars';
 import type { HelperOptions } from 'handlebars';
 import type Block from './Block';
 
-type BlockConstructor = new (props?: object) => Block & { element(): HTMLElement | null };
+type BlockConstructor = new (props?: object) => Block<object> & { element(): HTMLElement | null };
+
+export type ComponentConstructor = BlockConstructor & { componentName: string };
 
 let uniqueId = 0;
 
-export function registerComponent(Component: BlockConstructor & { componentName: string }): void {
+export function registerComponent(Component: ComponentConstructor): void {
   Handlebars.registerHelper(Component.componentName, function (this: unknown, { hash, data }: HelperOptions) {
     const id = ++uniqueId;
     const dataAttribute = `data-component-hbs-id="${id}"`;
     const selector = `[data-component-hbs-id="${id}"]`;
     const component = new Component(hash as Record<string, unknown>);
 
-    const root = (data.root ??= {}) as Record<string, unknown>;
+    const dataRoot = data as { root?: Record<string, unknown> };
+    const root = (dataRoot.root ??= {});
     const refs = (root.__refs ??= {}) as Record<string, HTMLElement>;
     const children = (root.__children ??= []) as Array<{
-      component: Block;
+      component: Block<object>;
       embed(node: DocumentFragment): void;
     }>;
 
-    if ('ref' in hash && hash.ref) {
+    const hashObj = hash as Record<string, unknown>;
+    if (hashObj.ref) {
       const el = component.element();
       if (el) {
-        refs[hash.ref as string] = el as HTMLElement;
+        refs[hashObj.ref as string] = el;
       }
     }
 

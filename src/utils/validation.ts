@@ -108,9 +108,15 @@ export function validateForm(
   }
 
   if (fields.includes('repeatPassword') && fields.includes('newPassword')) {
-    const newPass = form.elements.namedItem('newPassword') as HTMLInputElement;
-    const repeatPass = form.elements.namedItem('repeatPassword') as HTMLInputElement;
-    if (newPass?.value && repeatPass?.value && newPass.value !== repeatPass.value) {
+    const newPass = form.elements.namedItem('newPassword');
+    const repeatPass = form.elements.namedItem('repeatPassword');
+    if (
+      newPass instanceof HTMLInputElement &&
+      repeatPass instanceof HTMLInputElement &&
+      newPass.value &&
+      repeatPass.value &&
+      newPass.value !== repeatPass.value
+    ) {
       errors.repeatPassword = 'Пароли не совпадают';
     }
   }

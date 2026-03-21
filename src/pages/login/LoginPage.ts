@@ -17,7 +17,9 @@ export default class LoginPage extends Block<LoginPageProps> {
   protected events = {
     submit: (event: Event) => {
       event.preventDefault();
-      const form = event.target as HTMLFormElement;
+      const target = event.target;
+      if (!(target instanceof HTMLFormElement)) return;
+      const form = target;
       const data = collectFormData(form) as Record<string, string>;
       console.log('Данные формы входа:', data);
 

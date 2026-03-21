@@ -24,4 +24,10 @@ export default defineConfig([
     },
   },
   tseslint.configs.recommendedTypeCheckedOnly,
+  {
+    files: ["**/*.{ts,mts,cts}"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "error",
+    },
+  },
 ]);
