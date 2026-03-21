@@ -43,22 +43,22 @@ export default class App {
 
     switch (path) {
       case '/':
-        pageComponent = new LoginPage();
+        pageComponent = new LoginPage({ errors: {} });
         break;
       case '/register':
-        pageComponent = new RegisterPage();
+        pageComponent = new RegisterPage({ errors: {} });
         break;
       case '/chat':
         pageComponent = new ChatPage({ chatList, messageList });
         break;
       case '/profile':
-        pageComponent = new ProfilePage(profileData);
+        pageComponent = new ProfilePage({ ...profileData, errors: {} });
         break;
       case '/profile-edit':
-        pageComponent = new ProfilePage(profileEditData);
+        pageComponent = new ProfilePage({ ...profileEditData, errors: {} });
         break;
       case '/password-edit':
-        pageComponent = new ProfilePage(passwordEditData);
+        pageComponent = new ProfilePage({ ...passwordEditData, errors: {} });
         break;
       case '/500':
         sourceTemplate = error500Page;

@@ -4,7 +4,7 @@
 	{{/if}}
 
 	<input id="input-{{name}}" class="input {{#if error}}input--error{{/if}}"
-		type="{{#if type}}{{type}}{{else}}text{{/if}}" name="{{name}}" placeholder="{{placeholder}}" />
+		type="{{#if type}}{{type}}{{else}}text{{/if}}" name="{{name}}" value="{{value}}" placeholder="{{placeholder}}" ref="field" />
 
 	{{#if error}}
 	<span class="input-group__error-text">{{error}}</span>

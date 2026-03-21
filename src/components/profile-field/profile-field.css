@@ -1,5 +1,6 @@
 .profile-field {
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: space-between;
 	align-items: center;
 	padding: 10px 0;
@@ -31,4 +32,16 @@
 
 .profile-field__input:focus {
 	color: var(--color-text-main);
+}
+
+.profile-field--error .profile-field__input {
+	color: var(--color-error);
+}
+
+.profile-field__error {
+	flex-basis: 100%;
+	margin-top: 4px;
+	font-size: 12px;
+	color: var(--color-error);
+	text-align: right;
 }

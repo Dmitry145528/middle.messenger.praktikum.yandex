@@ -1,6 +1,8 @@
 import Block from '../../core/Block';
 import template from './chat.hbs?raw';
 import type { ChatListItem, ChatMessage } from './index';
+import { validateField } from '../../utils/validation';
+import { collectFormData } from '../../utils/formData';
 import './chat.css';
 
 interface ChatPageProps {
@@ -12,16 +14,29 @@ export default class ChatPage extends Block<ChatPageProps> {
   protected template = template;
 
   protected events = {
-    submit: (event: SubmitEvent) => {
-      const form = event.target;
+    submit: (event: Event) => {
+      const form = (event as SubmitEvent).target;
       if (!(form instanceof HTMLFormElement) || !form.classList.contains('chat-message-form')) {
         return;
       }
 
       event.preventDefault();
-      const input = form.querySelector<HTMLInputElement>('.chat-message-form__input');
-      if (input) {
-        input.value = '';
+
+      const data = collectFormData(form);
+      console.log('Данные формы сообщения:', data);
+
+      const messageInput = form.querySelector<HTMLInputElement>('input[name="message"]');
+      const errorEl = form.querySelector<HTMLSpanElement>('.js-message-error');
+      const message = messageInput?.value ?? '';
+      const error = validateField('message', message);
+
+      if (errorEl) errorEl.textContent = error ?? '';
+      messageInput?.classList.toggle('chat-message-form__input--error', Boolean(error));
+
+      if (error) return;
+
+      if (messageInput) {
+        messageInput.value = '';
       }
     }
   };
@@ -62,6 +77,18 @@ export default class ChatPage extends Block<ChatPageProps> {
     });
   };
 
+  private handleMessageBlur = (): void => {
+    const root = this.element();
+    const form = root?.querySelector<HTMLFormElement>('.chat-message-form');
+    const messageInput = form?.querySelector<HTMLInputElement>('input[name="message"]');
+    const errorEl = form?.querySelector<HTMLSpanElement>('.js-message-error');
+    if (!messageInput || !errorEl) return;
+
+    const error = validateField('message', messageInput.value);
+    errorEl.textContent = error ?? '';
+    messageInput.classList.toggle('chat-message-form__input--error', Boolean(error));
+  };
+
   protected componentDidMount(): void {
     const root = this.element();
     if (!root) {
@@ -73,6 +100,9 @@ export default class ChatPage extends Block<ChatPageProps> {
     });
 
     document.addEventListener('click', this.handleDocumentClick);
+
+    const messageInput = root.querySelector<HTMLInputElement>('.chat-message-form__input');
+    messageInput?.addEventListener('blur', this.handleMessageBlur);
   }
 
   protected componentWillUnmount(): void {
@@ -86,6 +116,9 @@ export default class ChatPage extends Block<ChatPageProps> {
     });
 
     document.removeEventListener('click', this.handleDocumentClick);
+
+    const messageInput = root.querySelector<HTMLInputElement>('.chat-message-form__input');
+    messageInput?.removeEventListener('blur', this.handleMessageBlur);
   }
 }
 

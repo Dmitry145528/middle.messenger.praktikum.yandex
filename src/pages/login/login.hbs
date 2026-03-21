@@ -3,24 +3,13 @@
 
   <form class="login-form">
     <div class="login-form__inputs">
-      {{> Input
-      label="Логин"
-      name="login"
-      type="text"
-      placeholder="Введите ваш логин"
-      }}
-
-      {{> Input
-      label="Пароль"
-      name="password"
-      type="password"
-      placeholder="Введите пароль"
-      }}
+      {{{ Input label="Логин" name="login" type="text" placeholder="Логин или email" ref="login" error=errors.login value=values.login }}}
+      {{{ Input label="Пароль" name="password" type="password" placeholder="Введите пароль" ref="password" error=errors.password value=values.password }}}
     </div>
 
     <div class="login-form__actions">
-      {{> Button text="Войти" type="primary" htmlType="submit" }}
-      {{> Link text="Ещё не зарегистрированы?" href="/register" className="login-form__link" }}
+      {{{ Button text="Войти" type="primary" htmlType="submit" }}}
+      {{{ Link text="Ещё не зарегистрированы?" href="/register" className="login-form__link" }}}
     </div>
   </form>
 </main>

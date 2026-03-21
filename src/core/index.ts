@@ -1,2 +1,3 @@
 export { default as Block } from './Block';
-export type { EventListType, RefsType } from './Block';
+export { registerComponent } from './registerComponent';
+export type { EventListType, BlockOwnProps, BlockChild } from './Block';

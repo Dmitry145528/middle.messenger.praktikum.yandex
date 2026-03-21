@@ -15,35 +15,33 @@
 		<form class="profile-page__form">
 			<ul class="profile-page__fields">
 				{{#if isPasswordEdit}}
-				{{> ProfileField label="Старый пароль" name="oldPassword" type="password" isEdit=true value="********"
-				}}
-				{{> ProfileField label="Новый пароль" name="newPassword" type="password" isEdit=true value="********" }}
-				{{> ProfileField label="Повторите новый пароль" name="repeatPassword" type="password" isEdit=true
-				value="********" }}
+				{{> ProfileField label="Старый пароль" name="oldPassword" type="password" isEdit=true value="" placeholder="Введите старый пароль" error=errors.oldPassword }}
+				{{> ProfileField label="Новый пароль" name="newPassword" type="password" isEdit=true value="" placeholder="Введите новый пароль" error=errors.newPassword }}
+				{{> ProfileField label="Повторите новый пароль" name="repeatPassword" type="password" isEdit=true value="" placeholder="Повторите новый пароль" error=errors.repeatPassword }}
 				{{else}}
-				{{> ProfileField label="Почта" name="email" value=email isEdit=isEdit }}
-				{{> ProfileField label="Логин" name="login" value=login isEdit=isEdit }}
-				{{> ProfileField label="Имя" name="first_name" value=first_name isEdit=isEdit }}
-				{{> ProfileField label="Фамилия" name="second_name" value=second_name isEdit=isEdit }}
-				{{> ProfileField label="Имя в чате" name="display_name" value=display_name isEdit=isEdit }}
-				{{> ProfileField label="Телефон" name="phone" value=phone isEdit=isEdit }}
+				{{> ProfileField label="Почта" name="email" value=email isEdit=isEdit error=errors.email }}
+				{{> ProfileField label="Логин" name="login" value=login isEdit=isEdit error=errors.login }}
+				{{> ProfileField label="Имя" name="first_name" value=first_name isEdit=isEdit error=errors.first_name }}
+				{{> ProfileField label="Фамилия" name="second_name" value=second_name isEdit=isEdit error=errors.second_name }}
+				{{> ProfileField label="Имя в чате" name="display_name" value=display_name isEdit=isEdit error=errors.display_name }}
+				{{> ProfileField label="Телефон" name="phone" value=phone isEdit=isEdit error=errors.phone }}
 				{{/if}}
 			</ul>
 
 			{{#if isEdit}}
-			{{> Button text="Сохранить" type="primary" htmlType="submit" }}
+			{{{ Button text="Сохранить" type="primary" htmlType="submit" }}}
 			{{else if isPasswordEdit}}
-			{{> Button text="Сохранить" type="primary" htmlType="submit" }}
+			{{{ Button text="Сохранить" type="primary" htmlType="submit" }}}
 			{{else}}
 			<ul class="profile-page__actions">
 				<li class="profile-page__action">
-					{{> Link text="Изменить данные" href="/profile-edit" }}
+					{{{ Link text="Изменить данные" href="/profile-edit" }}}
 				</li>
 				<li class="profile-page__action">
-					{{> Link text="Изменить пароль" href="/password-edit" }}
+					{{{ Link text="Изменить пароль" href="/password-edit" }}}
 				</li>
 				<li class="profile-page__action">
-					{{> Link text="Выйти" href="/" className="link--error" }}
+					{{{ Link text="Выйти" href="/" className="link--error" }}}
 				</li>
 			</ul>
 			{{/if}}

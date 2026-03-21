@@ -3,13 +3,13 @@ import Handlebars from 'handlebars';
 
 import './index.css';
 
-import { Components } from './components';
+import { Partials } from './components';
 
-Object.entries(Components).forEach(([name, template]) => {
+Object.entries(Partials).forEach(([name, template]) => {
   Handlebars.registerPartial(name, template);
 });
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
   const app = new App();
   app.render();
 });

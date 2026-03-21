@@ -108,7 +108,10 @@
 			</div>
 
 			<form class="chat-message-form">
-				<input class="chat-message-form__input" type="text" name="message" placeholder="Сообщение" required />
+				<div class="chat-message-form__wrap">
+					<input class="chat-message-form__input" type="text" name="message" placeholder="Сообщение" />
+					<span class="chat-message-form__error js-message-error"></span>
+				</div>
 				<button class="chat-message-form__send" type="submit">
 					<img src="/ArrovButton.svg" alt="send">
 				</button>
