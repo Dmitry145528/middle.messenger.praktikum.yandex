@@ -7,7 +7,7 @@
 - **Стилизация:** CSS (BEM методология)
 - **Деплой:** Netlify
 
-## Функционал (Sprint 1)
+## Функционал (Sprint 2)
 - [Страница входа (Login)](https://exquisite-daifuku-9f0d3c.netlify.app/)
 - [Страница регистрации (Signup)](https://exquisite-daifuku-9f0d3c.netlify.app/register)
 - [Страница списка чатов (Chat)](https://exquisite-daifuku-9f0d3c.netlify.app/chat)
@@ -42,6 +42,33 @@
    ```bash
    npm run preview
    ```
+
+## Проверка качества кода
+
+- **Проверка TypeScript:**
+  ```bash
+  npm run typecheck
+  ```
+
+- **Проверка линтерами (ESLint + Stylelint):**
+  ```bash
+  npm run lint
+  ```
+
+- **Автоисправление:**
+  ```bash
+  npm run lint:fix
+  ```
+
+- **Отдельно ESLint:**
+  ```bash
+  npm run eslint:fix
+  ```
+
+- **Отдельно Stylelint:**
+  ```bash
+  npm run stylelint:fix
+  ```
 
 ## Ссылки
 
