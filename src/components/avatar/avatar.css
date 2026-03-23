@@ -2,7 +2,7 @@
 	width: 150px;
 	height: 150px;
 	border-radius: 50%;
-	background-color: #efefef;
+	background-color: var(--color-bg-muted);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -19,8 +19,8 @@
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	background-color: rgba(0, 0, 0, 0.5);
-	color: white;
+	background-color: var(--color-overlay);
+	color: var(--color-text-inverse);
 	font-size: 13px;
 	opacity: 0;
 	border: none;

@@ -22,10 +22,14 @@ export default class ProfilePage extends Block<ProfilePageProps> {
 
     const inputs = form.querySelectorAll<HTMLInputElement>('input[name]');
     const errors: Record<string, string> = { ...this.props.errors };
+    const values: Record<string, string> = {};
 
     inputs.forEach((input) => {
       const name = input.name;
-      const error = validateField(name, input.value);
+      const value = input.value;
+      values[name] = value;
+
+      const error = validateField(name, value);
       if (error) {
         errors[name] = error;
       } else {
@@ -33,7 +37,7 @@ export default class ProfilePage extends Block<ProfilePageProps> {
       }
     });
 
-    this.setProps({ errors } as Partial<ProfilePageProps>);
+    this.setProps({ errors, ...values } as Partial<ProfilePageProps>);
   };
 
   protected events = {
@@ -49,14 +53,15 @@ export default class ProfilePage extends Block<ProfilePageProps> {
       const fields = isPasswordEdit ? PASSWORD_EDIT_FIELDS : isEdit ? PROFILE_EDIT_FIELDS : [];
       if (fields.length === 0) return;
 
-      const data = collectFormData(form);
-      console.log('Данные формы профиля:', data);
-
       const { isValid, errors } = validateForm(form, fields);
       if (!isValid) {
-        this.setProps({ errors } as Partial<ProfilePageProps>);
+        const data = collectFormData(form);
+        this.setProps({ errors, ...(data as Record<string, string>) } as Partial<ProfilePageProps>);
         return;
       }
+
+      const data = collectFormData(form);
+      console.log('Данные формы профиля:', data);
 
       if (isEdit || isPasswordEdit) {
         setTimeout(() => { window.location.href = '/profile'; }, 5000);

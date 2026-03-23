@@ -4,7 +4,7 @@
   max-width: 450px;
   padding: 50px 30px;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-shadow: var(--shadow-card);
   display: flex;
   margin: 0 10px;
   flex-direction: column;

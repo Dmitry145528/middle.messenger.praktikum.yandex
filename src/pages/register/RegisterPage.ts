@@ -20,14 +20,16 @@ export default class RegisterPage extends Block<RegisterPageProps> {
       const target = event.target;
       if (!(target instanceof HTMLFormElement)) return;
       const form = target;
-      const data = collectFormData(form) as Record<string, string>;
-      console.log('Данные формы регистрации:', data);
 
       const { isValid, errors } = validateForm(form, REGISTER_FIELDS);
       if (!isValid) {
+        const data = collectFormData(form) as Record<string, string>;
         this.setProps({ errors, values: data });
         return;
       }
+
+      const data = collectFormData(form) as Record<string, string>;
+      console.log('Данные формы регистрации:', data);
       setTimeout(() => { window.location.href = '/chat'; }, 5000);
     }
   };

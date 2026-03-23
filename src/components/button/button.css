@@ -16,7 +16,7 @@
 
 .button--primary {
 	background-color: var(--color-primary);
-	color: white;
+	color: var(--color-text-inverse);
 }
 
 .button--primary:hover {

@@ -20,14 +20,16 @@ export default class LoginPage extends Block<LoginPageProps> {
       const target = event.target;
       if (!(target instanceof HTMLFormElement)) return;
       const form = target;
-      const data = collectFormData(form) as Record<string, string>;
-      console.log('Данные формы входа:', data);
 
       const { isValid, errors } = validateForm(form, LOGIN_FIELDS);
       if (!isValid) {
+        const data = collectFormData(form) as Record<string, string>;
         this.setProps({ errors, values: data });
         return;
       }
+
+      const data = collectFormData(form) as Record<string, string>;
+      console.log('Данные формы входа:', data);
       setTimeout(() => { window.location.href = '/chat'; }, 5000);
     }
   };

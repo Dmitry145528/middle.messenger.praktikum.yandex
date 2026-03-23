@@ -15,9 +15,9 @@
 		<form class="profile-page__form">
 			<ul class="profile-page__fields">
 				{{#if isPasswordEdit}}
-				{{> ProfileField label="Старый пароль" name="oldPassword" type="password" isEdit=true value="" placeholder="Введите старый пароль" error=errors.oldPassword }}
-				{{> ProfileField label="Новый пароль" name="newPassword" type="password" isEdit=true value="" placeholder="Введите новый пароль" error=errors.newPassword }}
-				{{> ProfileField label="Повторите новый пароль" name="repeatPassword" type="password" isEdit=true value="" placeholder="Повторите новый пароль" error=errors.repeatPassword }}
+				{{> ProfileField label="Старый пароль" name="oldPassword" type="password" isEdit=true value=oldPassword placeholder="Введите старый пароль" error=errors.oldPassword }}
+				{{> ProfileField label="Новый пароль" name="newPassword" type="password" isEdit=true value=newPassword placeholder="Введите новый пароль" error=errors.newPassword }}
+				{{> ProfileField label="Повторите новый пароль" name="repeatPassword" type="password" isEdit=true value=repeatPassword placeholder="Повторите новый пароль" error=errors.repeatPassword }}
 				{{else}}
 				{{> ProfileField label="Почта" name="email" value=email isEdit=isEdit error=errors.email }}
 				{{> ProfileField label="Логин" name="login" value=login isEdit=isEdit error=errors.login }}

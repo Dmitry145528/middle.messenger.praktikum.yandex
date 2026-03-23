@@ -7,7 +7,7 @@
 
 .profile-layout__sidebar {
 	width: 64px;
-	background-color: #fbfbfb;
+	background-color: var(--color-bg-sidebar);
 	border-right: 1px solid var(--color-border);
 	display: flex;
 	justify-content: center;
