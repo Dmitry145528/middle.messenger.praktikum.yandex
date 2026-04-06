@@ -15,6 +15,13 @@
   width: 100%;
 }
 
+.register-form__server-error {
+  color: var(--color-error);
+  font-size: 12px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
 .register-card__title {
   font-size: 20px;
   font-weight: 500;

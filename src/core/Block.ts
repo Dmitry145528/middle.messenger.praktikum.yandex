@@ -58,6 +58,14 @@ export default abstract class Block<Props extends object = Record<string, unknow
     }
   }
 
+  public detach(): void {
+    this.unmountComponent();
+    if (this.domElement?.parentNode) {
+      this.domElement.remove();
+    }
+    this.domElement = null;
+  }
+
   private attachListeners(): void {
     for (const eventName in this.events) {
       const eventCallback = this.events[eventName as keyof HTMLElementEventMap];

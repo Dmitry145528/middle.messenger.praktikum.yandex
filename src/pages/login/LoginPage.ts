@@ -2,17 +2,43 @@ import Block from '../../core/Block';
 import template from './login.hbs?raw';
 import { validateForm } from '../../utils/validation';
 import { collectFormData } from '../../utils/formData';
+import store from '../../store/store';
+import AuthController from '../../controllers/auth-controller';
 import './login.css';
 
 interface LoginPageProps {
   errors?: Record<string, string>;
   values?: Record<string, string>;
+  authError?: string;
+  authLoading?: boolean;
 }
 
 const LOGIN_FIELDS = ['login', 'password'];
 
+function mapAuthFromStore(): Pick<LoginPageProps, 'authError' | 'authLoading'> {
+  const s = store.getState();
+  return {
+    authError: s.authError ?? undefined,
+    authLoading: s.authLoading
+  };
+}
+
 export default class LoginPage extends Block<LoginPageProps> {
   protected template = template;
+
+  private _unsub: (() => void) | null = null;
+
+  constructor(props: LoginPageProps = {}) {
+    super({ errors: {}, ...props, ...mapAuthFromStore() });
+    this._unsub = store.subscribe(() => {
+      this.setProps(mapAuthFromStore());
+    });
+  }
+
+  protected componentWillUnmount(): void {
+    this._unsub?.();
+    this._unsub = null;
+  }
 
   protected events = {
     submit: (event: Event) => {
@@ -29,8 +55,10 @@ export default class LoginPage extends Block<LoginPageProps> {
       }
 
       const data = collectFormData(form) as Record<string, string>;
-      console.log('Данные формы входа:', data);
-      setTimeout(() => { window.location.href = '/chat'; }, 5000);
+      void AuthController.signIn({
+        login: data.login,
+        password: data.password
+      });
     }
   };
 }

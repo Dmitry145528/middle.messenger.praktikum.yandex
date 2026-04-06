@@ -2,6 +2,9 @@
   <h1 class="register-card__title">Регистрация</h1>
 
   <form class="register-form">
+    {{#if authError}}
+    <p class="register-form__server-error">{{authError}}</p>
+    {{/if}}
     <div class="register-form__inputs">
       {{{ Input label="Имя" name="first_name" type="text" placeholder="Введите имя" error=errors.first_name value=values.first_name }}}
       {{{ Input label="Фамилия" name="second_name" type="text" placeholder="Введите фамилию" error=errors.second_name value=values.second_name }}}
@@ -12,7 +15,7 @@
     </div>
 
     <div class="register-form__actions">
-      {{{ Button text="Зарегистрироваться" type="primary" htmlType="submit" }}}
+      {{{ Button text="Зарегистрироваться" type="primary" htmlType="submit" disabled=authLoading }}}
       {{{ Link text="Войти" href="/" className="register-form__link" }}}
     </div>
   </form>

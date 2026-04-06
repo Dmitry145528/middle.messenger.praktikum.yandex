@@ -1,19 +1,7 @@
 import profilePage from './profile.hbs?raw';
 import './profile.css';
 import ProfilePage from './ProfilePage';
-
-interface ProfileData {
-	avatar: string;
-	first_name: string;
-	second_name: string;
-	display_name: string;
-	login: string;
-	email: string;
-	phone: string;
-}
-
-type ProfileEditData = ProfileData & { isEdit: true };
-type PasswordEditData = ProfileData & { isPasswordEdit: true };
+import type { ProfileData, ProfileEditData, PasswordEditData } from './profile-types';
 
 const profileData: ProfileData = {
 	avatar: '',
@@ -36,4 +24,4 @@ const passwordEditData: PasswordEditData = {
 };
 
 export { profilePage, profileData, profileEditData, passwordEditData, ProfilePage };
-export type { ProfileData, ProfileEditData, PasswordEditData };
+export type { ProfileData, ProfileEditData, PasswordEditData } from './profile-types';

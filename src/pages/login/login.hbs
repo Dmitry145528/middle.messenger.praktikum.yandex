@@ -2,14 +2,17 @@
   <h1 class="login-card__title">Вход</h1>
 
   <form class="login-form">
+    {{#if authError}}
+    <p class="login-form__server-error">{{authError}}</p>
+    {{/if}}
     <div class="login-form__inputs">
       {{{ Input label="Логин" name="login" type="text" placeholder="Логин или email" ref="login" error=errors.login value=values.login }}}
       {{{ Input label="Пароль" name="password" type="password" placeholder="Введите пароль" ref="password" error=errors.password value=values.password }}}
     </div>
 
     <div class="login-form__actions">
-      {{{ Button text="Войти" type="primary" htmlType="submit" }}}
-      {{{ Link text="Ещё не зарегистрированы?" href="/register" className="login-form__link" }}}
+      {{{ Button text="Войти" type="primary" htmlType="submit" disabled=authLoading }}}
+      {{{ Link text="Ещё не зарегистрированы?" href="/sign-up" className="login-form__link" }}}
     </div>
   </form>
 </main>

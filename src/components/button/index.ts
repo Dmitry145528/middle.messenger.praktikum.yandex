@@ -5,6 +5,7 @@ interface ButtonProps {
   text?: string;
   type?: string;
   htmlType?: string;
+  disabled?: boolean;
 }
 
 export default class Button extends Block<ButtonProps & { ref?: string }> {
