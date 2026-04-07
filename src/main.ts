@@ -1,21 +1,12 @@
 import Handlebars from 'handlebars';
 import Router from './core/Router';
 import { Partials } from './components';
-import {
-  LoginPage,
-  RegisterPage,
-  ProfilePage,
-  ChatPage,
-  chatList,
-  messageList,
-  profileData
-} from './pages';
+import { LoginPage, RegisterPage, ProfilePage, ChatPage, profileData } from './pages';
 import Error404Page from './pages/404/Error404Page';
 import Error500Page from './pages/500/Error500Page';
 import AuthController from './controllers/auth-controller';
 import store from './store/store';
 import { mapUserToProfileData } from './utils/mapUserToProfile';
-import { mapUserToChatSidebar } from './utils/chatSidebarUser';
 
 import './index.css';
 
@@ -50,13 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .use('/profile', () => buildProfileViewPage())
     .use('/profile-edit', () => buildProfileEditPage())
     .use('/password-edit', () => buildPasswordEditPage())
-    .use('/messenger', () =>
-      new ChatPage({
-        chatList,
-        messageList,
-        ...mapUserToChatSidebar(store.getState().user)
-      })
-    )
+    .use('/messenger', () => new ChatPage())
     .use('/404', () => new Error404Page())
     .use('/500', () => new Error500Page());
 

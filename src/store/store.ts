@@ -9,7 +9,11 @@ const initialState: AppState = {
   authLoading: false,
   authError: null,
   profileLoading: false,
-  profileError: null
+  profileError: null,
+  chats: [],
+  selectedChatId: null,
+  chatsLoading: false,
+  chatsError: null
 };
 
 class Store {

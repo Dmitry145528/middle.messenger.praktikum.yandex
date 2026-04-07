@@ -1,3 +1,5 @@
+import type { Chat } from '../api/chats-api';
+
 export type Indexed = Record<string, unknown>;
 
 export type User = {
@@ -17,4 +19,8 @@ export type AppState = {
   authError: string | null;
   profileLoading: boolean;
   profileError: string | null;
+  chats: Chat[];
+  selectedChatId: number | null;
+  chatsLoading: boolean;
+  chatsError: string | null;
 };

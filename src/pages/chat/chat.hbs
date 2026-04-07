@@ -1,27 +1,34 @@
 <main class="chat-page">
-	<!-- Левая колонка: Сайдбар со списком чатов -->
 	<aside class="chat-sidebar">
-		<!-- Шапка сайдбара (Профиль и поиск) -->
 		<header class="chat-sidebar__header">
 			<div class="chat-sidebar__profile">
 				<a href="/profile" class="chat-sidebar__profile-link">
-					{{#if sidebarUserAvatar}}
-					<img class="chat-sidebar__profile-avatar" src="{{sidebarUserAvatar}}" alt="">
-					{{/if}}
+					<img class="chat-sidebar__profile-avatar js-sidebar-avatar" src="" alt="" style="display:none">
 					<span class="chat-sidebar__profile-name">{{sidebarUserName}}</span>
 					<img class="chat-sidebar__profile-icon" src="/Arrov.svg" alt="arrow">
 				</a>
 			</div>
 
 			<div class="chat-search">
-				<input class="chat-search__input" type="text" placeholder="Поиск">
+				<input class="chat-search__input" id="chat-search" name="search" type="text" placeholder="Поиск" disabled>
 			</div>
+
+			<form class="chat-new-form js-new-chat-form">
+				<input class="chat-new-form__input" type="text" name="title" placeholder="Название нового чата" autocomplete="off">
+				<button class="chat-new-form__btn" type="submit" {{#if chatsLoading}}disabled{{/if}}>Создать</button>
+			</form>
+
+			{{#if chatsError}}
+			<p class="chat-sidebar__error" role="alert">{{chatsError}}</p>
+			{{/if}}
 		</header>
 
-		<!-- Список чатов -->
 		<ul class="chat-list">
+			{{#if chatsLoading}}
+			<li class="chat-list__status">Загрузка чатов…</li>
+			{{else}}
 			{{#each chatList}}
-			<li class="chat-item {{#if isActive}}chat-item--active{{/if}}">
+			<li class="chat-item {{#if isActive}}chat-item--active{{/if}}" data-chat-id="{{id}}">
 				<div class="chat-item__avatar"></div>
 				<div class="chat-item__content">
 					<div class="chat-item__top">
@@ -39,16 +46,18 @@
 				</div>
 			</li>
 			{{/each}}
+			{{#unless chatList.length}}
+			<li class="chat-list__empty">Нет чатов. Введите название и нажмите «Создать».</li>
+			{{/unless}}
+			{{/if}}
 		</ul>
 	</aside>
 
-	<!-- Правая колонка: Окно переписки -->
 	<section class="chat-main">
-		<!-- Шапка чата -->
 		<header class="chat-header">
 			<div class="chat-header__user">
 				<div class="chat-header__avatar"></div>
-				<span class="chat-header__name">Вадим</span>
+				<span class="chat-header__name">{{activeChatTitle}}</span>
 			</div>
 
 			<div class="chat-options">
@@ -58,12 +67,12 @@
 
 				<div class="dropdown dropdown--header js-dropdown-menu">
 					<ul class="dropdown__list">
-						<li class="dropdown__item">
-							<img class="dropdown__icon" src="/addButton.png" alt="add">
+						<li class="dropdown__item js-chat-add-user" role="button" tabindex="0">
+							<img class="dropdown__icon" src="/addButton.png" alt="">
 							Добавить пользователя
 						</li>
-						<li class="dropdown__item">
-							<img class="dropdown__icon" src="/deleteButton.png" alt="delete">
+						<li class="dropdown__item js-chat-remove-user" role="button" tabindex="0">
+							<img class="dropdown__icon" src="/deleteButton.png" alt="">
 							Удалить пользователя
 						</li>
 					</ul>
@@ -71,10 +80,9 @@
 			</div>
 		</header>
 
-		<!-- История сообщений -->
 		<div class="chat-messages">
+			{{#if messageList.length}}
 			<div class="chat-messages__date">19 июня</div>
-
 			{{#each messageList}}
 			<div class="message message--{{type}}">
 				<div class="message__content">
@@ -83,9 +91,11 @@
 				</div>
 			</div>
 			{{/each}}
+			{{else}}
+			<p class="chat-messages__placeholder">Сообщения будут подключены позже (веб-сокеты).</p>
+			{{/if}}
 		</div>
 
-		<!-- Футер чата (ввод сообщения) -->
 		<footer class="chat-footer">
 			<div class="chat-attach">
 				<button class="chat-footer__attach-btn js-dropdown-toggle" type="button">
@@ -112,10 +122,10 @@
 
 			<form class="chat-message-form">
 				<div class="chat-message-form__wrap">
-					<input class="chat-message-form__input" type="text" name="message" placeholder="Сообщение" />
+					<input class="chat-message-form__input" type="text" name="message" placeholder="Сообщение" disabled>
 					<span class="chat-message-form__error js-message-error"></span>
 				</div>
-				<button class="chat-message-form__send" type="submit">
+				<button class="chat-message-form__send" type="submit" disabled>
 					<img src="/ArrovButton.svg" alt="send">
 				</button>
 			</form>

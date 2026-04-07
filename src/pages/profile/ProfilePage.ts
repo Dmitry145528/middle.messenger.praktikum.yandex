@@ -14,7 +14,6 @@ type ProfilePageProps = (ProfileData | ProfileEditData | PasswordEditData) & {
   errors?: Record<string, string>;
   profileError?: string;
   profileLoading?: boolean;
-  avatarImage?: string;
 };
 
 const PROFILE_EDIT_FIELDS = ['email', 'login', 'first_name', 'second_name', 'display_name', 'phone'];
@@ -85,17 +84,35 @@ export default class ProfilePage extends Block<ProfilePageProps> {
     }
   }
 
+  private _applyAvatarToDOM(): void {
+    const root = this.element();
+    if (!root) {
+      return;
+    }
+    const img = root.querySelector<HTMLImageElement>('.js-avatar-image');
+    const placeholder = root.querySelector<HTMLImageElement>('.js-avatar-placeholder');
+    const src = this._avatarObjectUrl ?? '';
+    if (img) {
+      if (img.getAttribute('src') !== src) {
+        img.src = src;
+      }
+      img.style.display = src ? '' : 'none';
+    }
+    if (placeholder) {
+      placeholder.style.display = src ? 'none' : '';
+    }
+  }
+
   private async _syncAvatarDisplayIfNeeded(): Promise<void> {
     const remote = typeof this.props.avatar === 'string' ? this.props.avatar : '';
     if (!remote) {
       this._revokeAvatarObjectUrl();
       this._avatarSyncedForRemote = null;
-      if (this.props.avatarImage) {
-        this.setProps({ avatarImage: '' } as Partial<ProfilePageProps>);
-      }
+      this._applyAvatarToDOM();
       return;
     }
     if (remote === this._avatarSyncedForRemote) {
+      this._applyAvatarToDOM();
       return;
     }
 
@@ -108,14 +125,14 @@ export default class ProfilePage extends Block<ProfilePageProps> {
       this._revokeAvatarObjectUrl();
       this._avatarObjectUrl = URL.createObjectURL(blob);
       this._avatarSyncedForRemote = remote;
-      this.setProps({ avatarImage: this._avatarObjectUrl } as Partial<ProfilePageProps>);
+      this._applyAvatarToDOM();
     } catch {
       if (generation !== this._avatarLoadGeneration) {
         return;
       }
       this._avatarSyncedForRemote = remote;
       this._revokeAvatarObjectUrl();
-      this.setProps({ avatarImage: '' } as Partial<ProfilePageProps>);
+      this._applyAvatarToDOM();
     }
   }
 
@@ -124,8 +141,7 @@ export default class ProfilePage extends Block<ProfilePageProps> {
     super({
       ...props,
       profileError: s.profileError ?? undefined,
-      profileLoading: s.profileLoading,
-      avatarImage: ''
+      profileLoading: s.profileLoading
     });
 
     this._storeUnsub = store.subscribe(() => {
@@ -234,5 +250,3 @@ export default class ProfilePage extends Block<ProfilePageProps> {
     root?.querySelector<HTMLInputElement>('.avatar__input')?.removeEventListener('change', this._onAvatarChange);
   }
 }
-
-export type { ProfilePageProps };

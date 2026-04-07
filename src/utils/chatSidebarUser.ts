@@ -1,15 +1,9 @@
 import type { User } from '../store/types';
 import { resolveAvatarUrl } from './avatarUrl';
 
-export type ChatSidebarUserProps = {
-  sidebarUserName: string;
-  sidebarUserAvatarRemote: string;
-  sidebarUserAvatar: string;
-};
-
-export function mapUserToChatSidebar(user: User | null): ChatSidebarUserProps {
+export function mapUserToChatSidebar(user: User | null) {
   if (!user) {
-    return { sidebarUserName: 'Профиль', sidebarUserAvatarRemote: '', sidebarUserAvatar: '' };
+    return { sidebarUserName: 'Профиль', sidebarUserAvatarRemote: '' };
   }
   const { first_name, second_name, display_name } = user;
   const name =
@@ -19,7 +13,6 @@ export function mapUserToChatSidebar(user: User | null): ChatSidebarUserProps {
     'Профиль';
   return {
     sidebarUserName: name,
-    sidebarUserAvatarRemote: resolveAvatarUrl(user.avatar),
-    sidebarUserAvatar: ''
+    sidebarUserAvatarRemote: resolveAvatarUrl(user.avatar)
   };
 }

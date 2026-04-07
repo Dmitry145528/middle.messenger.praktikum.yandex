@@ -1,7 +1,7 @@
 import { queryStringify } from './queryStringify';
 import { HttpFailureError } from './httpErrors';
 
-export const METHODS = {
+const METHODS = {
   GET: 'GET',
   POST: 'POST',
   PUT: 'PUT',
@@ -10,7 +10,7 @@ export const METHODS = {
 
 type Method = (typeof METHODS)[keyof typeof METHODS];
 
-export type RequestOptions = {
+type RequestOptions = {
   headers?: Record<string, string>;
   method?: Method;
   data?: unknown;
@@ -50,7 +50,7 @@ export default class HTTPTransport {
     return this.request(url, { ...options, method: METHODS.DELETE }, options.timeout);
   }
 
-  request(url: string, options: RequestOptions = {}, timeout = 5000): Promise<unknown> {
+  request(url: string, options: RequestOptions = {}, timeout = 15000): Promise<unknown> {
     const { headers = {}, method, data, responseType } = options;
 
     return new Promise((resolve, reject) => {

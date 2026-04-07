@@ -1,7 +1,5 @@
-import profilePage from './profile.hbs?raw';
-import './profile.css';
 import ProfilePage from './ProfilePage';
-import type { ProfileData, ProfileEditData, PasswordEditData } from './profile-types';
+import type { ProfileData } from './profile-types';
 
 const profileData: ProfileData = {
 	avatar: '',
@@ -13,15 +11,4 @@ const profileData: ProfileData = {
 	phone: '+7 (909) 967 30 30'
 };
 
-const profileEditData: ProfileEditData = {
-	...profileData,
-	isEdit: true
-};
-
-const passwordEditData: PasswordEditData = {
-	...profileData,
-	isPasswordEdit: true
-};
-
-export { profilePage, profileData, profileEditData, passwordEditData, ProfilePage };
-export type { ProfileData, ProfileEditData, PasswordEditData } from './profile-types';
+export { profileData, ProfilePage };

@@ -1,17 +1,35 @@
 import Block from '../../core/Block';
 import template from './chat.hbs?raw';
-import type { ChatListItem, ChatMessage } from './index';
+import type { ChatListItem, ChatMessage } from './chat-types';
 import { validateField } from '../../utils/validation';
-import { collectFormData } from '../../utils/formData';
 import store from '../../store/store';
-import type { ChatSidebarUserProps } from '../../utils/chatSidebarUser';
 import { mapUserToChatSidebar } from '../../utils/chatSidebarUser';
 import { fetchAvatarBlob } from '../../utils/fetchAvatarBlob';
+import { mapChatsToList, getActiveChatTitle } from '../../utils/mapChatsToList';
+import ChatsController from '../../controllers/chats-controller';
 import './chat.css';
 
-interface ChatPageProps extends ChatSidebarUserProps {
+interface ChatPageProps {
+  sidebarUserName: string;
+  sidebarUserAvatarRemote: string;
   chatList: ChatListItem[];
   messageList: ChatMessage[];
+  activeChatTitle: string;
+  chatsLoading: boolean;
+  chatsError?: string;
+}
+
+function buildPropsFromState(): Omit<ChatPageProps, 'messageList'> {
+  const s = store.getState();
+  const sidebar = mapUserToChatSidebar(s.user);
+  return {
+    sidebarUserName: sidebar.sidebarUserName,
+    sidebarUserAvatarRemote: sidebar.sidebarUserAvatarRemote,
+    chatList: mapChatsToList(s.chats, s.user, s.selectedChatId),
+    activeChatTitle: getActiveChatTitle(s.chats, s.selectedChatId),
+    chatsLoading: s.chatsLoading,
+    chatsError: s.chatsError ?? undefined
+  };
 }
 
 export default class ChatPage extends Block<ChatPageProps> {
@@ -25,14 +43,22 @@ export default class ChatPage extends Block<ChatPageProps> {
 
   private _sidebarAvatarLoadGeneration = 0;
 
-  constructor(props: ChatPageProps) {
-    super(props);
+  private _prevChatsJSON = '';
+
+  constructor() {
+    const derived = buildPropsFromState();
+    super({ ...derived, messageList: [] });
+
+    void ChatsController.loadChats();
+
     this._unsub = store.subscribe(() => {
-      const base = mapUserToChatSidebar(store.getState().user);
-      this.setProps({
-        sidebarUserName: base.sidebarUserName,
-        sidebarUserAvatarRemote: base.sidebarUserAvatarRemote
-      });
+      const next = buildPropsFromState();
+      const json = JSON.stringify(next);
+      if (json === this._prevChatsJSON) {
+        return;
+      }
+      this._prevChatsJSON = json;
+      this.setProps(next as Partial<ChatPageProps>);
     });
   }
 
@@ -43,16 +69,27 @@ export default class ChatPage extends Block<ChatPageProps> {
     }
   }
 
+  private _applySidebarAvatarToDOM(): void {
+    const img = this.element()?.querySelector<HTMLImageElement>('.js-sidebar-avatar');
+    if (!img) {
+      return;
+    }
+    const src = this._sidebarAvatarObjectUrl ?? '';
+    if (img.getAttribute('src') !== src) {
+      img.src = src;
+    }
+    img.style.display = src ? '' : 'none';
+  }
+
   private async _syncSidebarAvatar(remote: string): Promise<void> {
     if (!remote) {
       this._revokeSidebarAvatarObjectUrl();
       this._sidebarAvatarSyncedForRemote = null;
-      if (this.props.sidebarUserAvatar) {
-        this.setProps({ sidebarUserAvatar: '' });
-      }
+      this._applySidebarAvatarToDOM();
       return;
     }
     if (remote === this._sidebarAvatarSyncedForRemote) {
+      this._applySidebarAvatarToDOM();
       return;
     }
 
@@ -65,28 +102,92 @@ export default class ChatPage extends Block<ChatPageProps> {
       this._revokeSidebarAvatarObjectUrl();
       this._sidebarAvatarObjectUrl = URL.createObjectURL(blob);
       this._sidebarAvatarSyncedForRemote = remote;
-      this.setProps({ sidebarUserAvatar: this._sidebarAvatarObjectUrl });
+      this._applySidebarAvatarToDOM();
     } catch {
       if (generation !== this._sidebarAvatarLoadGeneration) {
         return;
       }
       this._sidebarAvatarSyncedForRemote = remote;
       this._revokeSidebarAvatarObjectUrl();
-      this.setProps({ sidebarUserAvatar: '' });
+      this._applySidebarAvatarToDOM();
     }
   }
 
   protected events = {
+    click: (event: Event) => {
+      const target = event.target as HTMLElement | null;
+      if (!target) {
+        return;
+      }
+      const chatRow = target.closest('[data-chat-id]');
+      if (chatRow instanceof HTMLElement && chatRow.dataset.chatId) {
+        const id = Number(chatRow.dataset.chatId);
+        if (!Number.isNaN(id)) {
+          ChatsController.selectChat(id);
+        }
+        return;
+      }
+      if (target.closest('.js-chat-add-user')) {
+        event.preventDefault();
+        const chatId = store.getState().selectedChatId;
+        if (chatId == null) {
+          window.alert('Выберите чат в списке слева.');
+          return;
+        }
+        const raw = window.prompt('ID пользователя для добавления в чат:');
+        if (raw == null || raw.trim() === '') {
+          return;
+        }
+        const uid = Number(raw.trim());
+        if (!Number.isInteger(uid) || uid < 1) {
+          window.alert('Нужно целое положительное число.');
+          return;
+        }
+        void ChatsController.addUsersToChat(chatId, [uid]);
+        return;
+      }
+      if (target.closest('.js-chat-remove-user')) {
+        event.preventDefault();
+        const chatId = store.getState().selectedChatId;
+        if (chatId == null) {
+          window.alert('Выберите чат в списке слева.');
+          return;
+        }
+        const raw = window.prompt('ID пользователя для удаления из чата:');
+        if (raw == null || raw.trim() === '') {
+          return;
+        }
+        const uid = Number(raw.trim());
+        if (!Number.isInteger(uid) || uid < 1) {
+          window.alert('Нужно целое положительное число.');
+          return;
+        }
+        void ChatsController.removeUsersFromChat(chatId, [uid]);
+      }
+    },
     submit: (event: Event) => {
       const form = (event as SubmitEvent).target;
-      if (!(form instanceof HTMLFormElement) || !form.classList.contains('chat-message-form')) {
+      if (!(form instanceof HTMLFormElement)) {
+        return;
+      }
+
+      if (form.classList.contains('js-new-chat-form')) {
+        event.preventDefault();
+        const input = form.querySelector<HTMLInputElement>('input[name="title"]');
+        const title = input?.value ?? '';
+        void ChatsController.createChat(title).then(() => {
+          if (input) {
+            input.value = '';
+          }
+        });
+        return;
+      }
+
+      if (!form.classList.contains('chat-message-form')) {
         return;
       }
 
       event.preventDefault();
-
-      const data = collectFormData(form);
-      console.log('Данные формы сообщения:', data);
 
       const messageInput = form.querySelector<HTMLInputElement>('input[name="message"]');
       const errorEl = form.querySelector<HTMLSpanElement>('.js-message-error');
@@ -194,5 +295,3 @@ export default class ChatPage extends Block<ChatPageProps> {
     messageInput?.removeEventListener('blur', this.handleMessageBlur);
   }
 }
-
-export type { ChatPageProps };

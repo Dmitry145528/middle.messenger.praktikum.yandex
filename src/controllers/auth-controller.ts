@@ -102,7 +102,11 @@ const AuthController = {
       authError: null,
       authLoading: false,
       profileError: null,
-      profileLoading: false
+      profileLoading: false,
+      chats: [],
+      selectedChatId: null,
+      chatsError: null,
+      chatsLoading: false
     });
     Router.get().go('/');
   }

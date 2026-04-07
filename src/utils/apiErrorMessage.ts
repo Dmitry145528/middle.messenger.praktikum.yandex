@@ -1,6 +1,6 @@
 import { HttpFailureError } from './httpErrors';
 
-export type ApiErrorContext = 'auth' | 'default';
+type ApiErrorContext = 'auth' | 'default';
 
 export function getApiErrorMessage(err: unknown, context: ApiErrorContext = 'default'): string {
   if (err instanceof HttpFailureError) {
