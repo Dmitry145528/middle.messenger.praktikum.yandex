@@ -6,13 +6,16 @@
 	</aside>
 
 	<main class="profile-page">
-		{{> Avatar src=avatar canEdit=isEdit }}
+		{{> Avatar src=avatarImage canEdit=isEdit }}
 
 		{{#unless isPasswordEdit}}
 		<h1 class="profile-page__name">{{first_name}}</h1>
 		{{/unless}}
 
 		<form class="profile-page__form">
+			{{#if profileError}}
+			<p class="profile-page__api-error">{{profileError}}</p>
+			{{/if}}
 			<ul class="profile-page__fields">
 				{{#if isPasswordEdit}}
 				{{> ProfileField label="Старый пароль" name="oldPassword" type="password" isEdit=true value=oldPassword placeholder="Введите старый пароль" error=errors.oldPassword }}
@@ -29,9 +32,9 @@
 			</ul>
 
 			{{#if isEdit}}
-			{{{ Button text="Сохранить" type="primary" htmlType="submit" }}}
+			{{{ Button text="Сохранить" type="primary" htmlType="submit" disabled=profileLoading }}}
 			{{else if isPasswordEdit}}
-			{{{ Button text="Сохранить" type="primary" htmlType="submit" }}}
+			{{{ Button text="Сохранить" type="primary" htmlType="submit" disabled=profileLoading }}}
 			{{else}}
 			<ul class="profile-page__actions">
 				<li class="profile-page__action">

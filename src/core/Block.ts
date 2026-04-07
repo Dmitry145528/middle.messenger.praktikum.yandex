@@ -50,16 +50,18 @@ export default abstract class Block<Props extends object = Record<string, unknow
 
   protected componentWillUnmount(): void {}
 
-  protected unmountComponent(): void {
+  protected unmountComponent(isPermanentUnmount = false): void {
     if (this.domElement) {
-      this.children.reverse().forEach((child) => child.unmountComponent());
-      this.componentWillUnmount();
+      this.children.reverse().forEach((child) => child.unmountComponent(isPermanentUnmount));
+      if (isPermanentUnmount) {
+        this.componentWillUnmount();
+      }
       this.removeListeners();
     }
   }
 
   public detach(): void {
-    this.unmountComponent();
+    this.unmountComponent(true);
     if (this.domElement?.parentNode) {
       this.domElement.remove();
     }
@@ -85,7 +87,7 @@ export default abstract class Block<Props extends object = Record<string, unknow
   }
 
   protected render(): void {
-    this.unmountComponent();
+    this.unmountComponent(false);
     const fragment = this.compile();
     if (this.domElement && fragment) {
       this.domElement.replaceWith(fragment);

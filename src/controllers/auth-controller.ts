@@ -1,21 +1,8 @@
 import { HttpFailureError } from '../utils/httpErrors';
+import { getApiErrorMessage } from '../utils/apiErrorMessage';
 import { authAPI, type SignInPayload, type SignUpPayload } from '../api/auth-api';
 import store from '../store/store';
 import Router from '../core/Router';
-
-function messageFromError(err: unknown): string {
-  if (err instanceof HttpFailureError) {
-    try {
-      const parsed = JSON.parse(err.responseText) as { reason?: string };
-      if (parsed.reason) return parsed.reason;
-    } catch {
-      if (err.responseText) return err.responseText;
-    }
-    if (err.status === 401) return 'Неверный логин или пароль';
-    if (err.status === 400) return 'Некорректный запрос';
-  }
-  return 'Произошла ошибка, попробуйте ещё раз';
-}
 
 function reasonFromHttpError(err: HttpFailureError): string | undefined {
   try {
@@ -42,6 +29,7 @@ async function establishSessionAfterSignUp(payload: SignUpPayload): Promise<void
     await loadUserIntoStore();
     return;
   } catch {
+    /* нет сессии после signup */
   }
 
   try {
@@ -66,8 +54,7 @@ const AuthController = {
   },
 
   async signIn(payload: SignInPayload): Promise<void> {
-    store.setState('authLoading', true);
-    store.setState('authError', null);
+    store.patch({ authLoading: true, authError: null });
     try {
       try {
         await authAPI.signIn(payload);
@@ -79,27 +66,28 @@ const AuthController = {
           throw e;
         }
       }
-      store.setState('authError', null);
+      store.patch({ authError: null, authLoading: false });
       Router.get().go('/messenger');
     } catch (e) {
-      store.setState('authError', messageFromError(e));
-    } finally {
-      store.setState('authLoading', false);
+      store.patch({
+        authError: getApiErrorMessage(e, 'auth'),
+        authLoading: false
+      });
     }
   },
 
   async signUp(payload: SignUpPayload): Promise<void> {
-    store.setState('authLoading', true);
-    store.setState('authError', null);
+    store.patch({ authLoading: true, authError: null });
     try {
       await authAPI.signUp(payload);
       await establishSessionAfterSignUp(payload);
-      store.setState('authError', null);
+      store.patch({ authError: null, authLoading: false });
       Router.get().go('/messenger');
     } catch (e) {
-      store.setState('authError', messageFromError(e));
-    } finally {
-      store.setState('authLoading', false);
+      store.patch({
+        authError: getApiErrorMessage(e, 'auth'),
+        authLoading: false
+      });
     }
   },
 
@@ -107,9 +95,15 @@ const AuthController = {
     try {
       await authAPI.logout();
     } catch {
+      /* всё равно чистим клиент */
     }
-    store.setState('user', null);
-    store.setState('authError', null);
+    store.patch({
+      user: null,
+      authError: null,
+      authLoading: false,
+      profileError: null,
+      profileLoading: false
+    });
     Router.get().go('/');
   }
 };

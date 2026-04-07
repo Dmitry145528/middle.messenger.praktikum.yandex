@@ -15,6 +15,7 @@ import Error500Page from './pages/500/Error500Page';
 import AuthController from './controllers/auth-controller';
 import store from './store/store';
 import { mapUserToProfileData } from './utils/mapUserToProfile';
+import { mapUserToChatSidebar } from './utils/chatSidebarUser';
 
 import './index.css';
 
@@ -22,7 +23,7 @@ Object.entries(Partials).forEach(([name, template]) => {
   Handlebars.registerPartial(name, template);
 });
 
-function buildSettingsPage(): ProfilePage {
+function buildProfileViewPage(): ProfilePage {
   const u = store.getState().user;
   const base = u ? mapUserToProfileData(u) : profileData;
   return new ProfilePage({ ...base, errors: {} });
@@ -46,10 +47,16 @@ document.addEventListener('DOMContentLoaded', () => {
   router
     .use('/', () => new LoginPage({}))
     .use('/sign-up', () => new RegisterPage({}))
-    .use('/settings', () => buildSettingsPage())
+    .use('/profile', () => buildProfileViewPage())
     .use('/profile-edit', () => buildProfileEditPage())
     .use('/password-edit', () => buildPasswordEditPage())
-    .use('/messenger', () => new ChatPage({ chatList, messageList }))
+    .use('/messenger', () =>
+      new ChatPage({
+        chatList,
+        messageList,
+        ...mapUserToChatSidebar(store.getState().user)
+      })
+    )
     .use('/404', () => new Error404Page())
     .use('/500', () => new Error500Page());
 

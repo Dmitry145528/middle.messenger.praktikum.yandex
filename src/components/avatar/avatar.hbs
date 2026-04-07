@@ -1,4 +1,4 @@
-<label class="avatar__container {{#if canEdit}}avatar__container--editable{{/if}}">
+<div class="avatar__container {{#if canEdit}}avatar__container--editable{{/if}}">
 	{{#if src}}
 	<img src="{{src}}" alt="avatar" class="avatar__image">
 	{{else}}
@@ -6,7 +6,7 @@
 	{{/if}}
 
 	{{#if canEdit}}
-	<button class="avatar__overlay">Поменять аватар</button>
-	<input type="file" name="avatar" class="avatar__input" accept="image/*">
+	<input type="file" name="avatar" id="profile-avatar-file" class="avatar__input" accept="image/*">
+	<label for="profile-avatar-file" class="avatar__overlay">Поменять аватар</label>
 	{{/if}}
-</label>
+</div>

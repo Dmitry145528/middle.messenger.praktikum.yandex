@@ -7,7 +7,9 @@ type Listener = () => void;
 const initialState: AppState = {
   user: null,
   authLoading: false,
-  authError: null
+  authError: null,
+  profileLoading: false,
+  profileError: null
 };
 
 class Store {
@@ -28,6 +30,11 @@ class Store {
     this.emit();
   }
 
+  public patch(updates: Partial<AppState>): void {
+    this.state = { ...this.state, ...updates as Indexed };
+    this.emit();
+  }
+
   public subscribe(listener: Listener): () => void {
     this.listeners.add(listener);
     return () => {
@@ -36,7 +43,13 @@ class Store {
   }
 
   private emit(): void {
-    this.listeners.forEach((listener) => listener());
+    this.listeners.forEach((listener) => {
+      try {
+        listener();
+      } catch {
+        /* не даём одному подписчику сломать остальных и сброс loading */
+      }
+    });
   }
 }
 

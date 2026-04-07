@@ -1,16 +1,20 @@
 import Block from '../../core/Block';
-import Router from '../../core/Router';
 import template from './profile.hbs?raw';
 import type { PasswordEditData, ProfileData, ProfileEditData } from './profile-types';
 import { validateField, validateForm } from '../../utils/validation';
 import { collectFormData } from '../../utils/formData';
 import store from '../../store/store';
 import AuthController from '../../controllers/auth-controller';
+import UserController from '../../controllers/user-controller';
 import { mapUserToProfileData } from '../../utils/mapUserToProfile';
+import { fetchAvatarBlob } from '../../utils/fetchAvatarBlob';
 import './profile.css';
 
 type ProfilePageProps = (ProfileData | ProfileEditData | PasswordEditData) & {
   errors?: Record<string, string>;
+  profileError?: string;
+  profileLoading?: boolean;
+  avatarImage?: string;
 };
 
 const PROFILE_EDIT_FIELDS = ['email', 'login', 'first_name', 'second_name', 'display_name', 'phone'];
@@ -50,21 +54,104 @@ export default class ProfilePage extends Block<ProfilePageProps> {
 
   private _storeUnsub: (() => void) | null = null;
 
+  private _avatarObjectUrl: string | null = null;
+
+  private _avatarSyncedForRemote: string | null = null;
+
+  private _avatarLoadGeneration = 0;
+
   private _onLogoutClick = (event: Event): void => {
     event.preventDefault();
     void AuthController.logout();
   };
 
-  constructor(props: ProfilePageProps) {
-    super(props);
-    if (isViewMode(props)) {
-      this._storeUnsub = store.subscribe(() => {
-        const u = store.getState().user;
-        if (u) {
-          this.setProps({ ...mapUserToProfileData(u), errors: {} } as Partial<ProfilePageProps>);
-        }
-      });
+  private _onAvatarChange = (event: Event): void => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement) || !target.files?.length) return;
+    const file = target.files[0];
+    void UserController.updateAvatar(file).then(() => {
+      target.value = '';
+      const u = store.getState().user;
+      if (u) {
+        this.setProps({ avatar: mapUserToProfileData(u).avatar } as Partial<ProfilePageProps>);
+      }
+    });
+  };
+
+  private _revokeAvatarObjectUrl(): void {
+    if (this._avatarObjectUrl) {
+      URL.revokeObjectURL(this._avatarObjectUrl);
+      this._avatarObjectUrl = null;
     }
+  }
+
+  private async _syncAvatarDisplayIfNeeded(): Promise<void> {
+    const remote = typeof this.props.avatar === 'string' ? this.props.avatar : '';
+    if (!remote) {
+      this._revokeAvatarObjectUrl();
+      this._avatarSyncedForRemote = null;
+      if (this.props.avatarImage) {
+        this.setProps({ avatarImage: '' } as Partial<ProfilePageProps>);
+      }
+      return;
+    }
+    if (remote === this._avatarSyncedForRemote) {
+      return;
+    }
+
+    const generation = ++this._avatarLoadGeneration;
+    try {
+      const blob = await fetchAvatarBlob(remote);
+      if (generation !== this._avatarLoadGeneration) {
+        return;
+      }
+      this._revokeAvatarObjectUrl();
+      this._avatarObjectUrl = URL.createObjectURL(blob);
+      this._avatarSyncedForRemote = remote;
+      this.setProps({ avatarImage: this._avatarObjectUrl } as Partial<ProfilePageProps>);
+    } catch {
+      if (generation !== this._avatarLoadGeneration) {
+        return;
+      }
+      this._avatarSyncedForRemote = remote;
+      this._revokeAvatarObjectUrl();
+      this.setProps({ avatarImage: '' } as Partial<ProfilePageProps>);
+    }
+  }
+
+  constructor(props: ProfilePageProps) {
+    const s = store.getState();
+    super({
+      ...props,
+      profileError: s.profileError ?? undefined,
+      profileLoading: s.profileLoading,
+      avatarImage: ''
+    });
+
+    this._storeUnsub = store.subscribe(() => {
+      const state = store.getState();
+      const u = state.user;
+
+      if ('isPasswordEdit' in this.props && this.props.isPasswordEdit) {
+        this.setProps({
+          profileError: state.profileError ?? undefined,
+          profileLoading: state.profileLoading
+        } as Partial<ProfilePageProps>);
+        return;
+      }
+
+      if ('isEdit' in this.props && this.props.isEdit) {
+        this.setProps({
+          profileError: state.profileError ?? undefined,
+          profileLoading: state.profileLoading
+        } as Partial<ProfilePageProps>);
+        return;
+      }
+
+      if (isViewMode(this.props) && u) {
+        this.setProps({ ...mapUserToProfileData(u), errors: {} } as Partial<ProfilePageProps>);
+      }
+    });
   }
 
   protected events = {
@@ -87,16 +174,32 @@ export default class ProfilePage extends Block<ProfilePageProps> {
         return;
       }
 
-      const data = collectFormData(form);
-      console.log('Данные формы профиля:', data);
+      const data = collectFormData(form) as Record<string, string>;
 
-      if (isEdit || isPasswordEdit) {
-        Router.get().go('/settings');
+      if (isEdit) {
+        void UserController.updateProfile({
+          first_name: data.first_name,
+          second_name: data.second_name,
+          display_name: data.display_name,
+          login: data.login,
+          email: data.email,
+          phone: data.phone
+        });
+        return;
+      }
+
+      if (isPasswordEdit) {
+        void UserController.updatePassword({
+          oldPassword: data.oldPassword,
+          newPassword: data.newPassword
+        });
       }
     }
   };
 
   protected componentDidMount(): void {
+    void this._syncAvatarDisplayIfNeeded();
+
     const root = this.element();
     const form = root?.querySelector<HTMLFormElement>('.profile-page__form');
     form?.querySelectorAll<HTMLInputElement>('input[data-validate]').forEach((input) => {
@@ -105,9 +208,17 @@ export default class ProfilePage extends Block<ProfilePageProps> {
 
     const logoutLink = root?.querySelector<HTMLAnchorElement>('.profile-page__actions a.link--error');
     logoutLink?.addEventListener('click', this._onLogoutClick);
+
+    if ('isEdit' in this.props && this.props.isEdit) {
+      root?.querySelector<HTMLInputElement>('.avatar__input')?.addEventListener('change', this._onAvatarChange);
+    }
   }
 
   protected componentWillUnmount(): void {
+    this._avatarLoadGeneration += 1;
+    this._revokeAvatarObjectUrl();
+    this._avatarSyncedForRemote = null;
+
     this._storeUnsub?.();
     this._storeUnsub = null;
 
@@ -119,6 +230,8 @@ export default class ProfilePage extends Block<ProfilePageProps> {
 
     const logoutLink = root?.querySelector<HTMLAnchorElement>('.profile-page__actions a.link--error');
     logoutLink?.removeEventListener('click', this._onLogoutClick);
+
+    root?.querySelector<HTMLInputElement>('.avatar__input')?.removeEventListener('change', this._onAvatarChange);
   }
 }
 

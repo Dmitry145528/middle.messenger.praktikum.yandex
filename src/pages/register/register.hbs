@@ -3,7 +3,7 @@
 
   <form class="register-form">
     {{#if authError}}
-    <p class="register-form__server-error">{{authError}}</p>
+    <p class="register-form__server-error" role="alert">{{authError}}</p>
     {{/if}}
     <div class="register-form__inputs">
       {{{ Input label="Имя" name="first_name" type="text" placeholder="Введите имя" error=errors.first_name value=values.first_name }}}

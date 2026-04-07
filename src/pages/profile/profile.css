@@ -36,6 +36,15 @@
 	margin-bottom: 40px;
 }
 
+.profile-page__api-error {
+	color: var(--color-error);
+	font-size: 12px;
+	margin-bottom: 16px;
+	text-align: center;
+	max-width: 510px;
+	width: 100%;
+}
+
 .profile-page__form {
 	width: 100%;
 	max-width: 510px;

@@ -4,8 +4,11 @@
 		<!-- Шапка сайдбара (Профиль и поиск) -->
 		<header class="chat-sidebar__header">
 			<div class="chat-sidebar__profile">
-				<a href="/settings" class="chat-sidebar__profile-link">
-					Профиль
+				<a href="/profile" class="chat-sidebar__profile-link">
+					{{#if sidebarUserAvatar}}
+					<img class="chat-sidebar__profile-avatar" src="{{sidebarUserAvatar}}" alt="">
+					{{/if}}
+					<span class="chat-sidebar__profile-name">{{sidebarUserName}}</span>
 					<img class="chat-sidebar__profile-icon" src="/Arrov.svg" alt="arrow">
 				</a>
 			</div>

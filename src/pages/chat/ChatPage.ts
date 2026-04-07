@@ -3,15 +3,78 @@ import template from './chat.hbs?raw';
 import type { ChatListItem, ChatMessage } from './index';
 import { validateField } from '../../utils/validation';
 import { collectFormData } from '../../utils/formData';
+import store from '../../store/store';
+import type { ChatSidebarUserProps } from '../../utils/chatSidebarUser';
+import { mapUserToChatSidebar } from '../../utils/chatSidebarUser';
+import { fetchAvatarBlob } from '../../utils/fetchAvatarBlob';
 import './chat.css';
 
-interface ChatPageProps {
+interface ChatPageProps extends ChatSidebarUserProps {
   chatList: ChatListItem[];
   messageList: ChatMessage[];
 }
 
 export default class ChatPage extends Block<ChatPageProps> {
   protected template = template;
+
+  private _unsub: (() => void) | null = null;
+
+  private _sidebarAvatarObjectUrl: string | null = null;
+
+  private _sidebarAvatarSyncedForRemote: string | null = null;
+
+  private _sidebarAvatarLoadGeneration = 0;
+
+  constructor(props: ChatPageProps) {
+    super(props);
+    this._unsub = store.subscribe(() => {
+      const base = mapUserToChatSidebar(store.getState().user);
+      this.setProps({
+        sidebarUserName: base.sidebarUserName,
+        sidebarUserAvatarRemote: base.sidebarUserAvatarRemote
+      });
+    });
+  }
+
+  private _revokeSidebarAvatarObjectUrl(): void {
+    if (this._sidebarAvatarObjectUrl) {
+      URL.revokeObjectURL(this._sidebarAvatarObjectUrl);
+      this._sidebarAvatarObjectUrl = null;
+    }
+  }
+
+  private async _syncSidebarAvatar(remote: string): Promise<void> {
+    if (!remote) {
+      this._revokeSidebarAvatarObjectUrl();
+      this._sidebarAvatarSyncedForRemote = null;
+      if (this.props.sidebarUserAvatar) {
+        this.setProps({ sidebarUserAvatar: '' });
+      }
+      return;
+    }
+    if (remote === this._sidebarAvatarSyncedForRemote) {
+      return;
+    }
+
+    const generation = ++this._sidebarAvatarLoadGeneration;
+    try {
+      const blob = await fetchAvatarBlob(remote);
+      if (generation !== this._sidebarAvatarLoadGeneration) {
+        return;
+      }
+      this._revokeSidebarAvatarObjectUrl();
+      this._sidebarAvatarObjectUrl = URL.createObjectURL(blob);
+      this._sidebarAvatarSyncedForRemote = remote;
+      this.setProps({ sidebarUserAvatar: this._sidebarAvatarObjectUrl });
+    } catch {
+      if (generation !== this._sidebarAvatarLoadGeneration) {
+        return;
+      }
+      this._sidebarAvatarSyncedForRemote = remote;
+      this._revokeSidebarAvatarObjectUrl();
+      this.setProps({ sidebarUserAvatar: '' });
+    }
+  }
 
   protected events = {
     submit: (event: Event) => {
@@ -57,7 +120,7 @@ export default class ChatPage extends Block<ChatPageProps> {
     const parent = target.closest<HTMLElement>('.chat-options, .chat-attach');
     const menu = parent?.querySelector<HTMLElement>('.js-dropdown-menu');
 
-    root.querySelectorAll<HTMLElement>('.js-dropdown-menu').forEach(dropdown => {
+    root.querySelectorAll<HTMLElement>('.js-dropdown-menu').forEach((dropdown) => {
       if (dropdown !== menu) {
         dropdown.classList.remove('is-active');
       }
@@ -72,7 +135,7 @@ export default class ChatPage extends Block<ChatPageProps> {
       return;
     }
 
-    root.querySelectorAll<HTMLElement>('.js-dropdown-menu').forEach(menu => {
+    root.querySelectorAll<HTMLElement>('.js-dropdown-menu').forEach((menu) => {
       menu.classList.remove('is-active');
     });
   };
@@ -90,15 +153,18 @@ export default class ChatPage extends Block<ChatPageProps> {
   };
 
   protected componentDidMount(): void {
+    void this._syncSidebarAvatar(this.props.sidebarUserAvatarRemote);
+
     const root = this.element();
     if (!root) {
       return;
     }
 
-    root.querySelectorAll<HTMLButtonElement>('.js-dropdown-toggle').forEach(button => {
+    root.querySelectorAll<HTMLButtonElement>('.js-dropdown-toggle').forEach((button) => {
       button.addEventListener('click', this.handleToggleClick);
     });
 
+    document.removeEventListener('click', this.handleDocumentClick);
     document.addEventListener('click', this.handleDocumentClick);
 
     const messageInput = root.querySelector<HTMLInputElement>('.chat-message-form__input');
@@ -106,12 +172,19 @@ export default class ChatPage extends Block<ChatPageProps> {
   }
 
   protected componentWillUnmount(): void {
+    this._sidebarAvatarLoadGeneration += 1;
+    this._revokeSidebarAvatarObjectUrl();
+    this._sidebarAvatarSyncedForRemote = null;
+
+    this._unsub?.();
+    this._unsub = null;
+
     const root = this.element();
     if (!root) {
       return;
     }
 
-    root.querySelectorAll<HTMLButtonElement>('.js-dropdown-toggle').forEach(button => {
+    root.querySelectorAll<HTMLButtonElement>('.js-dropdown-toggle').forEach((button) => {
       button.removeEventListener('click', this.handleToggleClick);
     });
 

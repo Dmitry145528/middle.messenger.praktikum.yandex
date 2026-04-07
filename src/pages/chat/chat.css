@@ -39,6 +39,22 @@
 	text-decoration: none;
 	transition: color 0.2s, transform 0.2s;
 	font-weight: 500;
+	max-width: 100%;
+}
+
+.chat-sidebar__profile-name {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	min-width: 0;
+}
+
+.chat-sidebar__profile-avatar {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	object-fit: cover;
+	flex-shrink: 0;
 }
 
 .chat-sidebar__profile-link:hover {

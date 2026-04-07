@@ -19,7 +19,7 @@ function mapAuthFromStore(): Pick<RegisterPageProps, 'authError' | 'authLoading'
   const s = store.getState();
   return {
     authError: s.authError ?? undefined,
-    authLoading: s.authLoading
+    authLoading: s.authLoading === true
   };
 }
 

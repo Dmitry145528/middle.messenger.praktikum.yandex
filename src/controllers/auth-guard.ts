@@ -1,6 +1,6 @@
 import store from '../store/store';
 
-const protectedPaths = new Set(['/messenger', '/settings', '/profile-edit', '/password-edit']);
+const protectedPaths = new Set(['/messenger', '/profile', '/profile-edit', '/password-edit']);
 
 export function resolveAuthRedirect(pathname: string): string | null {
   const user = store.getState().user;

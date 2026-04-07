@@ -8,11 +8,13 @@ export type User = {
   login: string;
   email: string;
   phone: string;
-  avatar: string;
+  avatar: string | null;
 };
 
 export type AppState = {
   user: User | null;
   authLoading: boolean;
   authError: string | null;
+  profileLoading: boolean;
+  profileError: string | null;
 };

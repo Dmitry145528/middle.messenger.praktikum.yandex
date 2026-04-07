@@ -3,7 +3,7 @@
 
   <form class="login-form">
     {{#if authError}}
-    <p class="login-form__server-error">{{authError}}</p>
+    <p class="login-form__server-error" role="alert">{{authError}}</p>
     {{/if}}
     <div class="login-form__inputs">
       {{{ Input label="Логин" name="login" type="text" placeholder="Логин или email" ref="login" error=errors.login value=values.login }}}
