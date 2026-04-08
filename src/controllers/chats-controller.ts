@@ -4,7 +4,19 @@ import { getApiErrorMessage } from '../utils/apiErrorMessage';
 
 const ChatsController = {
   selectChat(chatId: number): void {
-    store.patch({ selectedChatId: chatId });
+    store.patch({ selectedChatId: chatId, chatUsers: [] });
+    void ChatsController.loadChatUsers(chatId);
+  },
+
+  async loadChatUsers(chatId: number): Promise<void> {
+    try {
+      const users = await chatsAPI.getChatUsers(chatId);
+      if (store.getState().selectedChatId === chatId) {
+        store.patch({ chatUsers: users });
+      }
+    } catch {
+      store.patch({ chatUsers: [] });
+    }
   },
 
   async loadChats(title?: string): Promise<void> {
@@ -25,6 +37,9 @@ const ChatsController = {
         chatsError: null,
         selectedChatId
       });
+      if (selectedChatId != null) {
+        void ChatsController.loadChatUsers(selectedChatId);
+      }
     } catch (e) {
       store.patch({
         chatsLoading: false,
@@ -58,6 +73,35 @@ const ChatsController = {
     store.patch({ chatsLoading: true, chatsError: null });
     try {
       await chatsAPI.addUsers({ chatId, users: userIds });
+      await ChatsController.loadChats();
+    } catch (e) {
+      store.patch({
+        chatsLoading: false,
+        chatsError: getApiErrorMessage(e)
+      });
+    }
+  },
+
+  async uploadChatAvatar(chatId: number, file: File): Promise<void> {
+    store.patch({ chatsLoading: true, chatsError: null });
+    try {
+      await chatsAPI.uploadAvatar(chatId, file);
+      await ChatsController.loadChats();
+    } catch (e) {
+      store.patch({
+        chatsLoading: false,
+        chatsError: getApiErrorMessage(e)
+      });
+    }
+  },
+
+  async deleteChat(chatId: number): Promise<void> {
+    store.patch({ chatsLoading: true, chatsError: null });
+    try {
+      await chatsAPI.deleteChat(chatId);
+      if (store.getState().selectedChatId === chatId) {
+        store.patch({ selectedChatId: null });
+      }
       await ChatsController.loadChats();
     } catch (e) {
       store.patch({

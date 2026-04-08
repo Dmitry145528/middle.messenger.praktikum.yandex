@@ -38,6 +38,18 @@ type ChatUsersRequest = {
   chatId: number;
 };
 
+export type ChatUser = {
+  id: number;
+  first_name: string;
+  second_name: string;
+  display_name: string | null;
+  login: string;
+  email: string;
+  phone: string;
+  avatar: string | null;
+  role: 'admin' | 'regular';
+};
+
 export const chatsAPI = {
   getList(query?: GetChatsQuery): Promise<Chat[]> {
     return http.get('chats', { data: query ?? undefined }) as Promise<Chat[]>;
@@ -47,11 +59,26 @@ export const chatsAPI = {
     return http.post('chats', { data: { title } }) as Promise<{ id: number }>;
   },
 
+  getChatUsers(chatId: number): Promise<ChatUser[]> {
+    return http.get(`chats/${chatId}/users`) as Promise<ChatUser[]>;
+  },
+
   addUsers(body: ChatUsersRequest): Promise<unknown> {
     return http.put('chats/users', { data: body });
   },
 
   removeUsers(body: ChatUsersRequest): Promise<unknown> {
     return http.delete('chats/users', { data: body });
+  },
+
+  deleteChat(chatId: number): Promise<unknown> {
+    return http.delete('chats', { data: { chatId } });
+  },
+
+  uploadAvatar(chatId: number, file: File): Promise<Chat> {
+    const form = new FormData();
+    form.append('chatId', String(chatId));
+    form.append('avatar', file);
+    return http.put('chats/avatar', { data: form }) as Promise<Chat>;
   }
 };

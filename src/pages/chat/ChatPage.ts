@@ -1,13 +1,31 @@
 import Block from '../../core/Block';
 import template from './chat.hbs?raw';
 import type { ChatListItem, ChatMessage } from './chat-types';
+import type { ChatUser } from '../../api/chats-api';
 import { validateField } from '../../utils/validation';
 import store from '../../store/store';
 import { mapUserToChatSidebar } from '../../utils/chatSidebarUser';
 import { fetchAvatarBlob } from '../../utils/fetchAvatarBlob';
-import { mapChatsToList, getActiveChatTitle } from '../../utils/mapChatsToList';
+import { resolveAvatarUrl } from '../../utils/avatarUrl';
+import { mapChatsToList, getActiveChatTitle, getActiveChatAvatar } from '../../utils/mapChatsToList';
 import ChatsController from '../../controllers/chats-controller';
 import './chat.css';
+
+interface ChatUserView {
+  id: number;
+  name: string;
+  avatar: string;
+  isAdmin: boolean;
+}
+
+function mapChatUsers(users: ChatUser[]): ChatUserView[] {
+  return users.map((u) => ({
+    id: u.id,
+    name: u.display_name?.trim() || `${u.first_name} ${u.second_name}`.trim() || u.login,
+    avatar: resolveAvatarUrl(u.avatar),
+    isAdmin: u.role === 'admin'
+  }));
+}
 
 interface ChatPageProps {
   sidebarUserName: string;
@@ -15,6 +33,9 @@ interface ChatPageProps {
   chatList: ChatListItem[];
   messageList: ChatMessage[];
   activeChatTitle: string;
+  activeChatAvatar: string;
+  chatUsersList: ChatUserView[];
+  chatUsersCount: number;
   chatsLoading: boolean;
   chatsError?: string;
 }
@@ -27,6 +48,9 @@ function buildPropsFromState(): Omit<ChatPageProps, 'messageList'> {
     sidebarUserAvatarRemote: sidebar.sidebarUserAvatarRemote,
     chatList: mapChatsToList(s.chats, s.user, s.selectedChatId),
     activeChatTitle: getActiveChatTitle(s.chats, s.selectedChatId),
+    activeChatAvatar: getActiveChatAvatar(s.chats, s.selectedChatId),
+    chatUsersList: mapChatUsers(s.chatUsers),
+    chatUsersCount: s.chatUsers.length,
     chatsLoading: s.chatsLoading,
     chatsError: s.chatsError ?? undefined
   };
@@ -127,6 +151,42 @@ export default class ChatPage extends Block<ChatPageProps> {
         }
         return;
       }
+      const removeBtn = target.closest<HTMLElement>('.js-remove-member');
+      if (removeBtn) {
+        event.preventDefault();
+        event.stopPropagation();
+        const chatId = store.getState().selectedChatId;
+        const userId = Number(removeBtn.dataset.userId);
+        if (chatId != null && Number.isInteger(userId) && userId > 0) {
+          void ChatsController.removeUsersFromChat(chatId, [userId]);
+        }
+        return;
+      }
+      if (target.closest('.js-members-toggle')) {
+        event.stopPropagation();
+        const dropdown = this.element()?.querySelector('.js-members-dropdown');
+        dropdown?.classList.toggle('is-active');
+        return;
+      }
+      if (target.closest('.js-chat-avatar')) {
+        event.preventDefault();
+        const chatId = store.getState().selectedChatId;
+        if (chatId == null) {
+          window.alert('Выберите чат в списке слева.');
+          return;
+        }
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/jpeg,image/png,image/gif,image/webp';
+        input.onchange = () => {
+          const file = input.files?.[0];
+          if (file) {
+            void ChatsController.uploadChatAvatar(chatId, file);
+          }
+        };
+        input.click();
+        return;
+      }
       if (target.closest('.js-chat-add-user')) {
         event.preventDefault();
         const chatId = store.getState().selectedChatId;
@@ -146,23 +206,16 @@ export default class ChatPage extends Block<ChatPageProps> {
         void ChatsController.addUsersToChat(chatId, [uid]);
         return;
       }
-      if (target.closest('.js-chat-remove-user')) {
+      if (target.closest('.js-chat-delete')) {
         event.preventDefault();
         const chatId = store.getState().selectedChatId;
         if (chatId == null) {
           window.alert('Выберите чат в списке слева.');
           return;
         }
-        const raw = window.prompt('ID пользователя для удаления из чата:');
-        if (raw == null || raw.trim() === '') {
-          return;
+        if (window.confirm('Удалить этот чат?')) {
+          void ChatsController.deleteChat(chatId);
         }
-        const uid = Number(raw.trim());
-        if (!Number.isInteger(uid) || uid < 1) {
-          window.alert('Нужно целое положительное число.');
-          return;
-        }
-        void ChatsController.removeUsersFromChat(chatId, [uid]);
       }
     },
     submit: (event: Event) => {
@@ -239,6 +292,8 @@ export default class ChatPage extends Block<ChatPageProps> {
     root.querySelectorAll<HTMLElement>('.js-dropdown-menu').forEach((menu) => {
       menu.classList.remove('is-active');
     });
+
+    root.querySelector('.js-members-dropdown')?.classList.remove('is-active');
   };
 
   private handleMessageBlur = (): void => {

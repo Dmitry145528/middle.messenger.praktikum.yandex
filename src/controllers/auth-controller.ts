@@ -105,6 +105,7 @@ const AuthController = {
       profileLoading: false,
       chats: [],
       selectedChatId: null,
+      chatUsers: [],
       chatsError: null,
       chatsLoading: false
     });

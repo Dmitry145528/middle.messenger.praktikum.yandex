@@ -3,7 +3,7 @@
 		<header class="chat-sidebar__header">
 			<div class="chat-sidebar__profile">
 				<a href="/profile" class="chat-sidebar__profile-link">
-					<img class="chat-sidebar__profile-avatar js-sidebar-avatar" src="" alt="" style="display:none">
+					<img class="chat-sidebar__profile-avatar js-sidebar-avatar" src="" style="display:none">
 					<span class="chat-sidebar__profile-name">{{sidebarUserName}}</span>
 					<img class="chat-sidebar__profile-icon" src="/Arrov.svg" alt="arrow">
 				</a>
@@ -29,7 +29,9 @@
 			{{else}}
 			{{#each chatList}}
 			<li class="chat-item {{#if isActive}}chat-item--active{{/if}}" data-chat-id="{{id}}">
-				<div class="chat-item__avatar"></div>
+				<div class="chat-item__avatar">
+					{{#if avatar}}<img src="{{avatar}}" class="chat-item__avatar-img">{{/if}}
+				</div>
 				<div class="chat-item__content">
 					<div class="chat-item__top">
 						<span class="chat-item__name">{{name}}</span>
@@ -56,8 +58,32 @@
 	<section class="chat-main">
 		<header class="chat-header">
 			<div class="chat-header__user">
-				<div class="chat-header__avatar"></div>
-				<span class="chat-header__name">{{activeChatTitle}}</span>
+				<div class="chat-header__avatar">
+					{{#if activeChatAvatar}}<img src="{{activeChatAvatar}}" class="chat-header__avatar-img">{{/if}}
+				</div>
+				<div class="chat-header__info">
+					<span class="chat-header__name">{{activeChatTitle}}</span>
+					{{#if chatUsersCount}}
+					<button class="chat-members-toggle js-members-toggle" type="button">
+						Участники: {{chatUsersCount}}
+					</button>
+					<div class="chat-members-dropdown js-members-dropdown">
+						<ul class="chat-members-list">
+							{{#each chatUsersList}}
+							<li class="chat-members-item">
+								<div class="chat-members-item__avatar">
+									{{#if avatar}}<img src="{{avatar}}" class="chat-members-item__avatar-img">{{/if}}
+								</div>
+								<span class="chat-members-item__name">{{name}}</span>
+								{{#unless isAdmin}}
+								<button class="chat-members-item__remove js-remove-member" data-user-id="{{id}}" type="button">&times;</button>
+								{{/unless}}
+							</li>
+							{{/each}}
+						</ul>
+					</div>
+					{{/if}}
+				</div>
 			</div>
 
 			<div class="chat-options">
@@ -67,15 +93,19 @@
 
 				<div class="dropdown dropdown--header js-dropdown-menu">
 					<ul class="dropdown__list">
-						<li class="dropdown__item js-chat-add-user" role="button" tabindex="0">
-							<img class="dropdown__icon" src="/addButton.png" alt="">
-							Добавить пользователя
-						</li>
-						<li class="dropdown__item js-chat-remove-user" role="button" tabindex="0">
-							<img class="dropdown__icon" src="/deleteButton.png" alt="">
-							Удалить пользователя
-						</li>
-					</ul>
+						<li class="dropdown__item js-chat-avatar" role="button" tabindex="0">
+						<img class="dropdown__icon" src="/PhotoOrVideo.svg">
+						Аватар чата
+					</li>
+					<li class="dropdown__item js-chat-add-user" role="button" tabindex="0">
+						<img class="dropdown__icon" src="/addButton.png">
+						Добавить пользователя
+					</li>
+					<li class="dropdown__item dropdown__item--danger js-chat-delete" role="button" tabindex="0">
+						<img class="dropdown__icon" src="/deleteButton.png">
+						Удалить чат
+					</li>
+				</ul>
 				</div>
 			</div>
 		</header>

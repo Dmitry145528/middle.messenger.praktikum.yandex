@@ -12,6 +12,7 @@ const initialState: AppState = {
   profileError: null,
   chats: [],
   selectedChatId: null,
+  chatUsers: [],
   chatsLoading: false,
   chatsError: null
 };

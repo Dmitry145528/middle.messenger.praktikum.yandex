@@ -1,6 +1,7 @@
 import type { Chat } from '../api/chats-api';
 import type { User } from '../store/types';
 import type { ChatListItem } from '../pages/chat/chat-types';
+import { resolveAvatarUrl } from './avatarUrl';
 
 function formatChatTime(iso: string | undefined): string {
   if (!iso) {
@@ -41,6 +42,7 @@ export function mapChatsToList(
     return {
       id: chat.id,
       name: chat.title || `Чат #${chat.id}`,
+      avatar: resolveAvatarUrl(chat.avatar),
       time: formatChatTime(last?.time),
       message: content,
       isMe,
@@ -56,4 +58,12 @@ export function getActiveChatTitle(chats: Chat[] | null, selectedChatId: number 
   }
   const c = chats.find((x) => x.id === selectedChatId);
   return c?.title?.trim() ? c.title : `Чат #${selectedChatId}`;
+}
+
+export function getActiveChatAvatar(chats: Chat[] | null, selectedChatId: number | null): string {
+  if (selectedChatId == null || !chats?.length) {
+    return '';
+  }
+  const c = chats.find((x) => x.id === selectedChatId);
+  return resolveAvatarUrl(c?.avatar);
 }

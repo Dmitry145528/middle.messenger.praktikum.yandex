@@ -3,6 +3,7 @@ export type ChatMessageType = 'incoming' | 'outgoing';
 export interface ChatListItem {
   id: number;
   name: string;
+  avatar: string;
   time: string;
   message: string;
   isMe: boolean;
