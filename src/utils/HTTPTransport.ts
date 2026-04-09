@@ -18,6 +18,8 @@ type RequestOptions = {
   responseType?: XMLHttpRequestResponseType;
 };
 
+type MethodOptions = Omit<RequestOptions, 'method'>;
+
 function joinURL(base: string, path: string): string {
   if (path.startsWith('http://') || path.startsWith('https://')) {
     return path;
@@ -34,19 +36,19 @@ export default class HTTPTransport {
     this.baseURL = baseURL;
   }
 
-  get(url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<unknown> {
+  get(url: string, options: MethodOptions = {}): Promise<unknown> {
     return this.request(url, { ...options, method: METHODS.GET }, options.timeout);
   }
 
-  post(url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<unknown> {
+  post(url: string, options: MethodOptions = {}): Promise<unknown> {
     return this.request(url, { ...options, method: METHODS.POST }, options.timeout);
   }
 
-  put(url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<unknown> {
+  put(url: string, options: MethodOptions = {}): Promise<unknown> {
     return this.request(url, { ...options, method: METHODS.PUT }, options.timeout);
   }
 
-  delete(url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<unknown> {
+  delete(url: string, options: MethodOptions = {}): Promise<unknown> {
     return this.request(url, { ...options, method: METHODS.DELETE }, options.timeout);
   }
 
