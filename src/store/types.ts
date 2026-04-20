@@ -13,6 +13,15 @@ export type User = {
   avatar: string | null;
 };
 
+export type StoredChatMessage = {
+  id: number;
+  time: string;
+  type: string;
+  user_id: number;
+  content: string;
+  file?: { filename?: string; path?: string };
+};
+
 export type AppState = {
   user: User | null;
   authLoading: boolean;
@@ -22,6 +31,7 @@ export type AppState = {
   chats: Chat[];
   selectedChatId: number | null;
   chatUsers: ChatUser[];
+  chatMessagesByChatId: Record<number, StoredChatMessage[]>;
   chatsLoading: boolean;
   chatsError: string | null;
 };

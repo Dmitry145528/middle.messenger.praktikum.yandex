@@ -106,6 +106,7 @@ const AuthController = {
       chats: [],
       selectedChatId: null,
       chatUsers: [],
+      chatMessagesByChatId: {},
       chatsError: null,
       chatsLoading: false
     });

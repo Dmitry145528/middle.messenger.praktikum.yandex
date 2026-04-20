@@ -8,7 +8,9 @@ import { mapUserToChatSidebar } from '../../utils/chatSidebarUser';
 import { fetchAvatarBlob } from '../../utils/fetchAvatarBlob';
 import { resolveAvatarUrl } from '../../utils/avatarUrl';
 import { mapChatsToList, getActiveChatTitle, getActiveChatAvatar } from '../../utils/mapChatsToList';
+import { mapStoredChatMessagesToView } from '../../utils/mapStoredChatMessages';
 import ChatsController from '../../controllers/chats-controller';
+import ChatSocketController from '../../controllers/chat-socket-controller';
 import './chat.css';
 
 interface ChatUserView {
@@ -40,9 +42,12 @@ interface ChatPageProps {
   chatsError?: string;
 }
 
-function buildPropsFromState(): Omit<ChatPageProps, 'messageList'> {
+function buildPropsFromState(): ChatPageProps {
   const s = store.getState();
   const sidebar = mapUserToChatSidebar(s.user);
+  const stored =
+    s.selectedChatId != null ? s.chatMessagesByChatId[s.selectedChatId] : undefined;
+  const messageList = mapStoredChatMessagesToView(stored, s.user?.id);
   return {
     sidebarUserName: sidebar.sidebarUserName,
     sidebarUserAvatarRemote: sidebar.sidebarUserAvatarRemote,
@@ -52,7 +57,8 @@ function buildPropsFromState(): Omit<ChatPageProps, 'messageList'> {
     chatUsersList: mapChatUsers(s.chatUsers),
     chatUsersCount: s.chatUsers.length,
     chatsLoading: s.chatsLoading,
-    chatsError: s.chatsError ?? undefined
+    chatsError: s.chatsError ?? undefined,
+    messageList
   };
 }
 
@@ -70,8 +76,7 @@ export default class ChatPage extends Block<ChatPageProps> {
   private _prevChatsJSON = '';
 
   constructor() {
-    const derived = buildPropsFromState();
-    super({ ...derived, messageList: [] });
+    super(buildPropsFromState());
 
     void ChatsController.loadChats();
 
@@ -82,7 +87,7 @@ export default class ChatPage extends Block<ChatPageProps> {
         return;
       }
       this._prevChatsJSON = json;
-      this.setProps(next as Partial<ChatPageProps>);
+      this.setProps(next);
     });
   }
 
@@ -252,6 +257,8 @@ export default class ChatPage extends Block<ChatPageProps> {
 
       if (error) return;
 
+      ChatSocketController.sendMessage(message.trim());
+
       if (messageInput) {
         messageInput.value = '';
       }
@@ -309,6 +316,7 @@ export default class ChatPage extends Block<ChatPageProps> {
   };
 
   protected componentDidMount(): void {
+    ChatSocketController.start();
     void this._syncSidebarAvatar(this.props.sidebarUserAvatarRemote);
 
     const root = this.element();
@@ -328,6 +336,7 @@ export default class ChatPage extends Block<ChatPageProps> {
   }
 
   protected componentWillUnmount(): void {
+    ChatSocketController.stop();
     this._sidebarAvatarLoadGeneration += 1;
     this._revokeSidebarAvatarObjectUrl();
     this._sidebarAvatarSyncedForRemote = null;

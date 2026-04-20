@@ -50,6 +50,10 @@ export type ChatUser = {
   role: 'admin' | 'regular';
 };
 
+export type ChatMessagesTokenResponse = {
+  token: string;
+};
+
 export const chatsAPI = {
   getList(query?: GetChatsQuery): Promise<Chat[]> {
     return http.get('chats', { data: query ?? undefined }) as Promise<Chat[]>;
@@ -61,6 +65,10 @@ export const chatsAPI = {
 
   getChatUsers(chatId: number): Promise<ChatUser[]> {
     return http.get(`chats/${chatId}/users`) as Promise<ChatUser[]>;
+  },
+
+  getMessagesToken(chatId: number): Promise<ChatMessagesTokenResponse> {
+    return http.post(`chats/token/${chatId}`, { data: {} }) as Promise<ChatMessagesTokenResponse>;
   },
 
   addUsers(body: ChatUsersRequest): Promise<unknown> {

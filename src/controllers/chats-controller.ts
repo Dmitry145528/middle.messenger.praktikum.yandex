@@ -99,9 +99,13 @@ const ChatsController = {
     store.patch({ chatsLoading: true, chatsError: null });
     try {
       await chatsAPI.deleteChat(chatId);
-      if (store.getState().selectedChatId === chatId) {
-        store.patch({ selectedChatId: null });
-      }
+      const s = store.getState();
+      const nextMsgs = { ...s.chatMessagesByChatId };
+      delete nextMsgs[chatId];
+      store.patch({
+        chatMessagesByChatId: nextMsgs,
+        selectedChatId: s.selectedChatId === chatId ? null : s.selectedChatId
+      });
       await ChatsController.loadChats();
     } catch (e) {
       store.patch({

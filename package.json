@@ -9,13 +9,20 @@
   "scripts": {
     "dev": "vite",
     "start": "vite build && vite preview",
+    "prepare": "husky",
     "typecheck": "tsc --noEmit",
     "eslint:fix": "eslint \"src/**/*.{ts,mts,cts}\" --fix",
     "stylelint:fix": "stylelint \"src/**/*.css\" --fix",
     "lint:fix": "npm run typecheck && npm run eslint:fix && npm run stylelint:fix",
     "lint": "npm run typecheck && eslint \"src/**/*.{ts,mts,cts}\" --max-warnings=0 && stylelint \"src/**/*.css\"",
+    "audit": "npm audit --audit-level=moderate",
+    "precommit": "lint-staged && npm run typecheck && npm run audit",
     "build": "npm run typecheck && vite build",
     "preview": "vite preview"
+  },
+  "lint-staged": {
+    "*.{ts,mts,cts}": "eslint --max-warnings=0",
+    "*.css": "stylelint"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
@@ -25,7 +32,9 @@
     "autoprefixer": "^10.4.27",
     "eslint": "^9.39.4",
     "globals": "^17.4.0",
+    "husky": "^9.1.7",
     "jiti": "^2.6.1",
+    "lint-staged": "^16.4.0",
     "postcss": "^8.5.8",
     "postcss-preset-env": "^11.2.0",
     "sass": "^1.97.3",

@@ -13,6 +13,7 @@ const initialState: AppState = {
   chats: [],
   selectedChatId: null,
   chatUsers: [],
+  chatMessagesByChatId: {},
   chatsLoading: false,
   chatsError: null
 };
