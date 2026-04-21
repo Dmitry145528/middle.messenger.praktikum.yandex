@@ -11,6 +11,8 @@ import { mapChatsToList, getActiveChatTitle, getActiveChatAvatar } from '../../u
 import { mapStoredChatMessagesToView } from '../../utils/mapStoredChatMessages';
 import ChatsController from '../../controllers/chats-controller';
 import ChatSocketController from '../../controllers/chat-socket-controller';
+import { resourcesAPI } from '../../api/resources-api';
+import { stickersAPI } from '../../api/stickers-api';
 import './chat.css';
 
 interface ChatUserView {
@@ -74,6 +76,10 @@ export default class ChatPage extends Block<ChatPageProps> {
   private _sidebarAvatarLoadGeneration = 0;
 
   private _prevChatsJSON = '';
+
+  private _attachmentBlobs = new Set<string>();
+
+  private _stickersGridFilled = false;
 
   constructor() {
     super(buildPropsFromState());
@@ -142,16 +148,149 @@ export default class ChatPage extends Block<ChatPageProps> {
     }
   }
 
+  private _revokeAttachmentBlobs(): void {
+    this._attachmentBlobs.forEach((u) => URL.revokeObjectURL(u));
+    this._attachmentBlobs.clear();
+  }
+
+  private async _hydrateBlobUrls(selector: string): Promise<void> {
+    const root = this.element();
+    if (!root) {
+      return;
+    }
+    const nodes = root.querySelectorAll<HTMLImageElement | HTMLVideoElement>(selector);
+    await Promise.all(
+      [...nodes].map(async (el) => {
+        const remote = el.dataset.remote ?? '';
+        if (!remote || el.dataset.blobReady === '1') {
+          return;
+        }
+        el.dataset.blobReady = '1';
+        try {
+          const blob = await fetchAvatarBlob(remote);
+          const u = URL.createObjectURL(blob);
+          this._attachmentBlobs.add(u);
+          el.src = u;
+        } catch {
+          el.removeAttribute('data-blobReady');
+        }
+      })
+    );
+  }
+
+  private _triggerResourceUpload(accept: string): void {
+    const chatId = store.getState().selectedChatId;
+    if (chatId == null) {
+      window.alert('Выберите чат в списке слева.');
+      return;
+    }
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = accept;
+    input.onchange = () => {
+      const file = input.files?.[0];
+      if (!file) {
+        return;
+      }
+      void (async () => {
+        try {
+          const res = await resourcesAPI.upload(file);
+          ChatSocketController.sendFileResourceId(String(res.id));
+        } catch {
+          window.alert('Не удалось загрузить файл.');
+        }
+      })();
+    };
+    input.click();
+  }
+
+  private async _openStickersPanel(): Promise<void> {
+    const root = this.element();
+    if (!root) {
+      return;
+    }
+    const panel = root.querySelector<HTMLElement>('.js-stickers-panel');
+    const grid = root.querySelector<HTMLElement>('.js-stickers-grid');
+    if (!panel || !grid) {
+      return;
+    }
+    panel.removeAttribute('hidden');
+    panel.hidden = false;
+    root.querySelectorAll<HTMLElement>('.js-dropdown-menu').forEach((m) => m.classList.remove('is-active'));
+    if (this._stickersGridFilled) {
+      await this._hydrateBlobUrls('.js-sticker-thumb[data-remote]');
+      return;
+    }
+    try {
+      const packs = await stickersAPI.getPacks();
+      const packId = packs[0]?.id;
+      if (packId == null) {
+        window.alert('Нет доступных наборов стикеров.');
+        return;
+      }
+      const stickers = await stickersAPI.getStickers(packId);
+      grid.replaceChildren();
+      for (const s of stickers) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chat-stickers-panel__item';
+        btn.dataset.stickerId = String(s.id);
+        const img = document.createElement('img');
+        img.className = 'js-sticker-thumb';
+        img.alt = '';
+        img.dataset.remote = resolveAvatarUrl(s.path ?? '');
+        btn.appendChild(img);
+        grid.appendChild(btn);
+      }
+      this._stickersGridFilled = stickers.length > 0;
+      await this._hydrateBlobUrls('.js-sticker-thumb[data-remote]');
+    } catch {
+      window.alert('Не удалось загрузить стикеры.');
+    }
+  }
+
   protected events = {
     click: (event: Event) => {
       const target = event.target as HTMLElement | null;
       if (!target) {
         return;
       }
+      const root = this.element();
+      const stickerPick = target.closest<HTMLButtonElement>('.chat-stickers-panel__item[data-sticker-id]');
+      if (stickerPick?.dataset.stickerId) {
+        event.preventDefault();
+        ChatSocketController.sendStickerId(stickerPick.dataset.stickerId);
+        const spClose = root?.querySelector<HTMLElement>('.js-stickers-panel');
+        if (spClose) spClose.hidden = true;
+        return;
+      }
+      if (target.closest('.js-stickers-close')) {
+        event.preventDefault();
+        const sp = root?.querySelector<HTMLElement>('.js-stickers-panel');
+        if (sp) sp.hidden = true;
+        return;
+      }
+      if (target.closest('.js-open-stickers')) {
+        event.preventDefault();
+        void this._openStickersPanel();
+        return;
+      }
+      if (target.closest('.js-attach-photo')) {
+        event.preventDefault();
+        this._triggerResourceUpload('image/*,video/*');
+        return;
+      }
+      if (target.closest('.js-attach-file')) {
+        event.preventDefault();
+        this._triggerResourceUpload('*/*');
+        return;
+      }
       const chatRow = target.closest('[data-chat-id]');
       if (chatRow instanceof HTMLElement && chatRow.dataset.chatId) {
         const id = Number(chatRow.dataset.chatId);
         if (!Number.isNaN(id)) {
+          const spanel = root?.querySelector<HTMLElement>('.js-stickers-panel');
+          if (spanel) spanel.hidden = true;
           ChatsController.selectChat(id);
         }
         return;
@@ -316,6 +455,7 @@ export default class ChatPage extends Block<ChatPageProps> {
   };
 
   protected componentDidMount(): void {
+    this._revokeAttachmentBlobs();
     ChatSocketController.start();
     void this._syncSidebarAvatar(this.props.sidebarUserAvatarRemote);
 
@@ -333,9 +473,14 @@ export default class ChatPage extends Block<ChatPageProps> {
 
     const messageInput = root.querySelector<HTMLInputElement>('.chat-message-form__input');
     messageInput?.addEventListener('blur', this.handleMessageBlur);
+
+    void this._hydrateBlobUrls(
+      'img.js-message-attachment[data-remote], video.js-message-attachment[data-remote]'
+    );
   }
 
   protected componentWillUnmount(): void {
+    this._revokeAttachmentBlobs();
     ChatSocketController.stop();
     this._sidebarAvatarLoadGeneration += 1;
     this._revokeSidebarAvatarObjectUrl();

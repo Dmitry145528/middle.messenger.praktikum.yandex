@@ -16,4 +16,6 @@ export interface ChatMessage {
   time: string;
   type: ChatMessageType;
   isRead?: boolean;
+  attachmentRemoteUrl?: string;
+  attachmentIsVideo?: boolean;
 }

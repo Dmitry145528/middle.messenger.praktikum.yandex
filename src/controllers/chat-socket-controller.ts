@@ -49,7 +49,8 @@ function toStoredMessage(data: unknown): StoredChatMessage | null {
     const f = o.file as Record<string, unknown>;
     file = {
       filename: typeof f.filename === 'string' ? f.filename : undefined,
-      path: typeof f.path === 'string' ? f.path : undefined
+      path: typeof f.path === 'string' ? f.path : undefined,
+      content_type: typeof f.content_type === 'string' ? f.content_type : undefined
     };
   }
   return { id, time, type, user_id, content, file };
@@ -84,6 +85,20 @@ const ChatSocketController = {
       return;
     }
     this._ws.send(JSON.stringify({ type: 'message', content: text }));
+  },
+
+  sendFileResourceId(resourceId: string): void {
+    if (!this._ws || this._ws.readyState !== WebSocket.OPEN) {
+      return;
+    }
+    this._ws.send(JSON.stringify({ type: 'file', content: resourceId }));
+  },
+
+  sendStickerId(stickerId: string): void {
+    if (!this._ws || this._ws.readyState !== WebSocket.OPEN) {
+      return;
+    }
+    this._ws.send(JSON.stringify({ type: 'sticker', content: stickerId }));
   },
 
   _disconnect(): void {
@@ -162,7 +177,7 @@ const ChatSocketController = {
         }
         if (parsed && typeof parsed === 'object') {
           const p = parsed as { type?: string };
-          if (p.type === 'message' || p.type === 'file') {
+          if (p.type === 'message' || p.type === 'file' || p.type === 'sticker') {
             const m = toStoredMessage(parsed);
             if (m) {
               mergeChatMessages(chatId, [m]);

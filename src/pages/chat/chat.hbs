@@ -115,7 +115,14 @@
 			{{#each messageList}}
 			<div class="message message--{{type}}">
 				<div class="message__content">
-					{{text}}
+					{{#if attachmentRemoteUrl}}
+					{{#if attachmentIsVideo}}
+					<video class="message__attachment message__attachment--video js-message-attachment" data-remote="{{attachmentRemoteUrl}}" controls playsinline></video>
+					{{else}}
+					<img class="message__attachment js-message-attachment" data-remote="{{attachmentRemoteUrl}}" alt="">
+					{{/if}}
+					{{/if}}
+					{{#if text}}<span class="message__text">{{text}}</span>{{/if}}
 					<time class="message__time {{#if isRead}}message__time--read{{/if}}">{{time}}</time>
 				</div>
 			</div>
@@ -123,6 +130,14 @@
 			{{else}}
 			<p class="chat-messages__placeholder">Нет сообщений. Напишите первое.</p>
 			{{/if}}
+		</div>
+
+		<div class="chat-stickers-panel js-stickers-panel" hidden>
+			<div class="chat-stickers-panel__header">
+				<span>Стикеры</span>
+				<button type="button" class="chat-stickers-panel__close js-stickers-close" aria-label="Закрыть">×</button>
+			</div>
+			<div class="chat-stickers-panel__grid js-stickers-grid"></div>
 		</div>
 
 		<footer class="chat-footer">
@@ -133,17 +148,17 @@
 
 				<div class="dropdown dropdown--footer js-dropdown-menu">
 					<ul class="dropdown__list">
-						<li class="dropdown__item">
+						<li class="dropdown__item js-attach-photo" role="button" tabindex="0">
 							<img class="dropdown__icon" src="/PhotoOrVideo.svg" alt="media">
 							Фото или Видео
 						</li>
-						<li class="dropdown__item">
+						<li class="dropdown__item js-attach-file" role="button" tabindex="0">
 							<img class="dropdown__icon" src="/File.svg" alt="file">
 							Файл
 						</li>
-						<li class="dropdown__item">
-							<img class="dropdown__icon" src="/location.svg" alt="location">
-							Локация
+						<li class="dropdown__item js-open-stickers" role="button" tabindex="0">
+							<img class="dropdown__icon" src="/PhotoOrVideo.svg" alt="stickers">
+							Стикеры
 						</li>
 					</ul>
 				</div>

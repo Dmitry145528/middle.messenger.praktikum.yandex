@@ -19,7 +19,7 @@ export type StoredChatMessage = {
   type: string;
   user_id: number;
   content: string;
-  file?: { filename?: string; path?: string };
+  file?: { filename?: string; path?: string; content_type?: string };
 };
 
 export type AppState = {
