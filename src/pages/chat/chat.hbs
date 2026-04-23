@@ -1,0 +1,178 @@
+<main class="chat-page">
+	<aside class="chat-sidebar">
+		<header class="chat-sidebar__header">
+			<div class="chat-sidebar__profile">
+				<a href="/profile" class="chat-sidebar__profile-link">
+					<img class="chat-sidebar__profile-avatar js-sidebar-avatar" src="" style="display:none">
+					<span class="chat-sidebar__profile-name">{{sidebarUserName}}</span>
+					<img class="chat-sidebar__profile-icon" src="/Arrov.svg" alt="arrow">
+				</a>
+			</div>
+
+			<div class="chat-search">
+				<input class="chat-search__input" id="chat-search" name="search" type="text" placeholder="Поиск" disabled>
+			</div>
+
+			<form class="chat-new-form js-new-chat-form">
+				<input class="chat-new-form__input" type="text" name="title" placeholder="Название нового чата" autocomplete="off">
+				<button class="chat-new-form__btn" type="submit" {{#if chatsLoading}}disabled{{/if}}>Создать</button>
+			</form>
+
+			{{#if chatsError}}
+			<p class="chat-sidebar__error" role="alert">{{chatsError}}</p>
+			{{/if}}
+		</header>
+
+		<ul class="chat-list">
+			{{#if chatsLoading}}
+			<li class="chat-list__status">Загрузка чатов…</li>
+			{{else}}
+			{{#each chatList}}
+			<li class="chat-item {{#if isActive}}chat-item--active{{/if}}" data-chat-id="{{id}}">
+				<div class="chat-item__avatar">
+					{{#if avatar}}<img src="{{avatar}}" class="chat-item__avatar-img">{{/if}}
+				</div>
+				<div class="chat-item__content">
+					<div class="chat-item__top">
+						<span class="chat-item__name">{{name}}</span>
+						<time class="chat-item__time">{{time}}</time>
+					</div>
+					<div class="chat-item__bottom">
+						<span class="chat-item__message">
+							{{#if isMe}}<strong>Вы:</strong> {{/if}}{{message}}
+						</span>
+						{{#if unreadCount}}
+						<div class="chat-item__badge">{{unreadCount}}</div>
+						{{/if}}
+					</div>
+				</div>
+			</li>
+			{{/each}}
+			{{#unless chatList.length}}
+			<li class="chat-list__empty">Нет чатов. Введите название и нажмите «Создать».</li>
+			{{/unless}}
+			{{/if}}
+		</ul>
+	</aside>
+
+	<section class="chat-main">
+		<header class="chat-header">
+			<div class="chat-header__user">
+				<div class="chat-header__avatar">
+					{{#if activeChatAvatar}}<img src="{{activeChatAvatar}}" class="chat-header__avatar-img">{{/if}}
+				</div>
+				<div class="chat-header__info">
+					<span class="chat-header__name">{{activeChatTitle}}</span>
+					{{#if chatUsersCount}}
+					<button class="chat-members-toggle js-members-toggle" type="button">
+						Участники: {{chatUsersCount}}
+					</button>
+					<div class="chat-members-dropdown js-members-dropdown">
+						<ul class="chat-members-list">
+							{{#each chatUsersList}}
+							<li class="chat-members-item">
+								<div class="chat-members-item__avatar">
+									{{#if avatar}}<img src="{{avatar}}" class="chat-members-item__avatar-img">{{/if}}
+								</div>
+								<span class="chat-members-item__name">{{name}}</span>
+								{{#unless isAdmin}}
+								<button class="chat-members-item__remove js-remove-member" data-user-id="{{id}}" type="button">&times;</button>
+								{{/unless}}
+							</li>
+							{{/each}}
+						</ul>
+					</div>
+					{{/if}}
+				</div>
+			</div>
+
+			<div class="chat-options">
+				<button class="chat-header__options-btn js-dropdown-toggle" type="button">
+					<img src="/3Points.svg" alt="options">
+				</button>
+
+				<div class="dropdown dropdown--header js-dropdown-menu">
+					<ul class="dropdown__list">
+						<li class="dropdown__item js-chat-avatar" role="button" tabindex="0">
+						<img class="dropdown__icon" src="/PhotoOrVideo.svg">
+						Аватар чата
+					</li>
+					<li class="dropdown__item js-chat-add-user" role="button" tabindex="0">
+						<img class="dropdown__icon" src="/addButton.png">
+						Добавить пользователя
+					</li>
+					<li class="dropdown__item dropdown__item--danger js-chat-delete" role="button" tabindex="0">
+						<img class="dropdown__icon" src="/deleteButton.png">
+						Удалить чат
+					</li>
+				</ul>
+				</div>
+			</div>
+		</header>
+
+		<div class="chat-messages">
+			{{#if messageList.length}}
+			{{#each messageList}}
+			<div class="message message--{{type}}">
+				<div class="message__content">
+					{{#if attachmentRemoteUrl}}
+					{{#if attachmentIsVideo}}
+					<video class="message__attachment message__attachment--video js-message-attachment" data-remote="{{attachmentRemoteUrl}}" controls playsinline></video>
+					{{else}}
+					<img class="message__attachment js-message-attachment" data-remote="{{attachmentRemoteUrl}}" alt="">
+					{{/if}}
+					{{/if}}
+					{{#if text}}<span class="message__text">{{text}}</span>{{/if}}
+					<time class="message__time {{#if isRead}}message__time--read{{/if}}">{{time}}</time>
+				</div>
+			</div>
+			{{/each}}
+			{{else}}
+			<p class="chat-messages__placeholder">Нет сообщений. Напишите первое.</p>
+			{{/if}}
+		</div>
+
+		<div class="chat-stickers-panel js-stickers-panel" hidden>
+			<div class="chat-stickers-panel__header">
+				<span>Стикеры</span>
+				<button type="button" class="chat-stickers-panel__close js-stickers-close" aria-label="Закрыть">×</button>
+			</div>
+			<div class="chat-stickers-panel__grid js-stickers-grid"></div>
+		</div>
+
+		<footer class="chat-footer">
+			<div class="chat-attach">
+				<button class="chat-footer__attach-btn js-dropdown-toggle" type="button">
+					<img src="/PaperClip.png" alt="attach" width="32">
+				</button>
+
+				<div class="dropdown dropdown--footer js-dropdown-menu">
+					<ul class="dropdown__list">
+						<li class="dropdown__item js-attach-photo" role="button" tabindex="0">
+							<img class="dropdown__icon" src="/PhotoOrVideo.svg" alt="media">
+							Фото или Видео
+						</li>
+						<li class="dropdown__item js-attach-file" role="button" tabindex="0">
+							<img class="dropdown__icon" src="/File.svg" alt="file">
+							Файл
+						</li>
+						<li class="dropdown__item js-open-stickers" role="button" tabindex="0">
+							<img class="dropdown__icon" src="/PhotoOrVideo.svg" alt="stickers">
+							Стикеры
+						</li>
+					</ul>
+				</div>
+			</div>
+
+			<form class="chat-message-form">
+				<div class="chat-message-form__wrap">
+					<input class="chat-message-form__input" type="text" name="message" placeholder="Сообщение" autocomplete="off">
+					<span class="chat-message-form__error js-message-error"></span>
+				</div>
+				<button class="chat-message-form__send" type="submit">
+					<img src="/ArrovButton.svg" alt="send">
+				</button>
+			</form>
+		</footer>
+	</section>
+</main>

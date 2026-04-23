@@ -1,0 +1,9 @@
+<div class="avatar__container {{#if canEdit}}avatar__container--editable{{/if}}">
+	<img src="{{src}}" alt="avatar" class="avatar__image js-avatar-image" {{#unless src}}style="display:none"{{/unless}}>
+	<img class="avatar__placeholder js-avatar-placeholder" src="/picture.svg" alt="avatar placeholder" {{#if src}}style="display:none"{{/if}}>
+
+	{{#if canEdit}}
+	<input type="file" name="avatar" id="profile-avatar-file" class="avatar__input" accept="image/*">
+	<label for="profile-avatar-file" class="avatar__overlay">Поменять аватар</label>
+	{{/if}}
+</div>

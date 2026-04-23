@@ -1,0 +1,13 @@
+.link {
+	color: var(--color-primary);
+	text-decoration: none;
+	font-size: 14px;
+	font-family: var(--font-family-main);
+	font-weight: 500;
+	transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.link:hover {
+	color: var(--color-primary-hover);
+	text-decoration: underline;
+}

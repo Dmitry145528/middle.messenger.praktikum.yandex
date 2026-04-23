@@ -1,0 +1,11 @@
+<li class="profile-field {{#if error}}profile-field--error{{/if}}">
+	<p class="profile-field__label">{{label}}</p>
+	{{#if isEdit}}
+	<input class="profile-field__input" type="{{type}}" name="{{name}}" value="{{value}}" placeholder="{{placeholder}}" data-validate="{{name}}" />
+	{{#if error}}
+	<span class="profile-field__error js-field-error" data-name="{{name}}">{{error}}</span>
+	{{/if}}
+	{{else}}
+	<p class="profile-field__value">{{value}}</p>
+	{{/if}}
+</li>

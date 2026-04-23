@@ -1,0 +1,22 @@
+<main class="register-card">
+  <h1 class="register-card__title">Регистрация</h1>
+
+  <form class="register-form">
+    {{#if authError}}
+    <p class="register-form__server-error" role="alert">{{authError}}</p>
+    {{/if}}
+    <div class="register-form__inputs">
+      {{{ Input label="Имя" name="first_name" type="text" placeholder="Введите имя" error=errors.first_name value=values.first_name }}}
+      {{{ Input label="Фамилия" name="second_name" type="text" placeholder="Введите фамилию" error=errors.second_name value=values.second_name }}}
+      {{{ Input label="Логин" name="login" type="text" placeholder="Придумайте логин" error=errors.login value=values.login }}}
+      {{{ Input label="Почта" name="email" type="email" placeholder="Введите email" error=errors.email value=values.email }}}
+      {{{ Input label="Пароль" name="password" type="password" placeholder="Придумайте пароль" error=errors.password value=values.password }}}
+      {{{ Input label="Телефон" name="phone" type="tel" placeholder="+7 (999) 000-00-00" error=errors.phone value=values.phone }}}
+    </div>
+
+    <div class="register-form__actions">
+      {{{ Button text="Зарегистрироваться" type="primary" htmlType="submit" disabled=authLoading }}}
+      {{{ Link text="Войти" href="/" className="register-form__link" }}}
+    </div>
+  </form>
+</main>
